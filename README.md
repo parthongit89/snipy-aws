@@ -10,7 +10,22 @@
 
   # Snipy
   ### Real-Time Anti-Overengineering Assistant & Code Optimization Coach
+
+  <p align="center">
+    <a href="https://aws.amazon.com/bedrock/">
+      <img src="Icon-github/Group 61.png" alt="AWS Bedrock" height="38" />
+    </a>
+    &nbsp;&nbsp;
+    <a href="https://www.anthropic.com/claude">
+      <img src="Icon-github/Group 60.png" alt="Claude 3.5 Haiku" height="38" />
+    </a>
+    &nbsp;&nbsp;
+    <a href="https://github.com/CSMU-CodeSync">
+      <img src="Icon-github/Group 62.png" alt="AWS Hackathon's x CSMU" height="38" />
+    </a>
+  </p>
   
+  [![GitHub Repository](https://img.shields.io/badge/GitHub-parthongit89%2Fsnipy--aws-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/parthongit89/snipy-aws)
   [![AWS Bedrock](https://img.shields.io/badge/AWS%20Bedrock-Claude%203.5%20Haiku-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)](https://aws.amazon.com/bedrock/)
   [![Neon Database](https://img.shields.io/badge/Neon-Serverless%20Postgres-00E599?style=for-the-badge&logo=postgresql&logoColor=white)](https://neon.tech/)
   [![Flask](https://img.shields.io/badge/Flask-3.0+-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
@@ -115,7 +130,8 @@ The browser extension features a floating **Screen Stick HUD** inspired by moder
 | **No Editor Found** | `frontend/Screen-constraints/Group 38.png` | Displays **"Oops! code editor not found"** when focused element is non-editable. |
 | **Language Not Recognized** | `frontend/Screen-constraints/Group 36.png` | Displays **"Language not recognized. Please update settings."** Click directly opens Settings! |
 | **Something Went Wrong** | `frontend/Screen-constraints/Group 37.png` | Fallback alert on network/API exception with auto-revert timer. |
-| **Minimized Island** | `frontend/Screen-constraints/Group 39.png` | Compact 50px pill displaying only the glowing cube icon. Expands smoothly on hover or click. |
+| **Active Inline Fix Prompt** | `frontend/Screen-constraints/Group 58.png` | Displays detected function (`avg_num()`), diagnostic reasoning, and inline [✓ Accept] / [✕ Reject] action controls. |
+| **Enhanced HUD Island** | `frontend/Screen-constraints/Group 59.png` | Dynamic Island HUD with electric cyan-blue border accent and shortcut trigger. |
 
 ---
 
@@ -286,8 +302,10 @@ venv\Scripts\activate
 # Install required dependencies
 pip install -r requirements.txt
 
-# Start the FastAPI server with Uvicorn
-uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+# Start the Flask backend server
+python app.py
+# Or with Gunicorn:
+# gunicorn app:app --bind 0.0.0.0:8080 --workers 2
 ```
 
 ### Step 3: Access the Frontend & Dashboard
@@ -308,7 +326,36 @@ uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 
 ## 👥 Contributors & Architecture Blueprint
 
-- **Organization / Repository**: [CSMU-CodeSync](https://github.com/CSMU-CodeSync)
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="220">
+        <a href="https://github.com/parthongit89/snipy-aws">
+          <img src="frontend/assets/github.png" width="60" height="60" alt="Snipy Repository Icon" style="border-radius:14px;" /><br /><br />
+          <b>parthongit89/snipy-aws</b><br />
+          <sub>Project Repository</sub>
+        </a>
+      </td>
+      <td align="center" width="220">
+        <a href="https://github.com/CSMU-CodeSync">
+          <img src="frontend/assets/github.png" width="60" height="60" alt="GitHub Organization" style="border-radius:14px;" /><br /><br />
+          <b>CSMU-CodeSync</b><br />
+          <sub>GitHub Organization</sub>
+        </a>
+      </td>
+      <td align="center" width="280">
+        <a href="https://github.com/CSMU-CodeSync">
+          <img src="Icon-github/Group 62.png" height="52" alt="AWS Hackathon's x CSMU" /><br /><br />
+          <b>AWS Hackathon's x CSMU</b><br />
+          <sub>Official Hackathon Edition</sub>
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
+
+- **GitHub Repository**: [`https://github.com/parthongit89/snipy-aws`](https://github.com/parthongit89/snipy-aws)
+- **Organization / Team**: [CSMU-CodeSync](https://github.com/CSMU-CodeSync)
 - **Contact & Support**: [codesync0208@gmail.com](mailto:codesync0208@gmail.com)
 - **Master System Blueprint**: [`sniply.drawio`](sniply.drawio)
 - **Product Requirements Document**: [`PRD.md`](PRD.md)
