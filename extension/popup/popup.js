@@ -2,7 +2,7 @@
  * Snipy — Screen-constraints Popup Controller
  * Implements the Figma Screen-constraints interactive states:
  * - Group 59.png: "Activate Snipy" with electric blue rim
- * - Group 58.png: "avg_num() Variable Not consistant [✓] [✕] [cube]"
+ * - Group 58.png: "avg_num() Variable Not consistent [✓] [✕] [cube]"
  * - Group 40.png: "Scanning Code...."
  * - Group 36, 37, 38: Warning / error states
  * - Suggestion apply.png: "Suggestion apply"

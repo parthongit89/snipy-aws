@@ -426,14 +426,24 @@ def user_feedback():
 @app.route("/api/v1/optimizations/<int:opt_id>", methods=["DELETE"])
 def delete_single_optimization(opt_id):
     user_id = request.args.get("userId") or request.args.get("firebase_uid")
-    from backend.db import delete_optimization
+    if not user_id:
+        return jsonify({"success": False, "error": "Authentication (userId) is required to delete optimizations"}), 400
+    try:
+        from db import delete_optimization
+    except ImportError:
+        from backend.db import delete_optimization
     deleted = delete_optimization(opt_id, firebase_uid=user_id)
     return jsonify({"success": deleted}), 200
 
 @app.route("/api/v1/optimizations", methods=["DELETE"])
 def clear_all_optimizations():
     user_id = request.args.get("userId") or request.args.get("firebase_uid")
-    from backend.db import clear_user_optimizations
+    if not user_id:
+        return jsonify({"success": False, "error": "Authentication (userId) is required to clear optimizations"}), 400
+    try:
+        from db import clear_user_optimizations
+    except ImportError:
+        from backend.db import clear_user_optimizations
     count = clear_user_optimizations(firebase_uid=user_id)
     return jsonify({"success": True, "deleted_count": count}), 200
 
@@ -928,5 +938,6 @@ def generate_fallback_optimization(code: str, ast_check: dict = None) -> dict:
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
-    logger.info(f"Starting Snipy Flask Backend on port {port}...")
-    app.run(host="0.0.0.0", port=port, debug=True)
+    debug = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1")
+    logger.info(f"Starting Snipy Flask Backend on port {port} (debug={debug})...")
+    app.run(host="0.0.0.0", port=port, debug=debug)

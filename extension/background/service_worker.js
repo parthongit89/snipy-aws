@@ -121,6 +121,12 @@ async function openOrFocusDashboard(payload = null) {
 
 // Message listener from Content Script & Dashboard
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // Security guard: verify that sender originates from this extension
+  if (sender && sender.id && sender.id !== chrome.runtime.id) {
+    console.warn("Rejected message from unauthorized sender:", sender.id);
+    return false;
+  }
+
   if (request.action === "OPEN_DASHBOARD") {
     if (sender && sender.tab && sender.tab.id) {
       chrome.storage.local.set({ targetTabId: sender.tab.id });

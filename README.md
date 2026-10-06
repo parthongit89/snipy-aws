@@ -13,7 +13,7 @@
   
   [![AWS Bedrock](https://img.shields.io/badge/AWS%20Bedrock-Claude%203.5%20Haiku-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)](https://aws.amazon.com/bedrock/)
   [![Neon Database](https://img.shields.io/badge/Neon-Serverless%20Postgres-00E599?style=for-the-badge&logo=postgresql&logoColor=white)](https://neon.tech/)
-  [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+  [![Flask](https://img.shields.io/badge/Flask-3.0+-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
   [![Manifest V3](https://img.shields.io/badge/Manifest%20V3-Chrome%20%7C%20Edge-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/intro/)
   [![Vercel Frontend](https://img.shields.io/badge/Vercel-Frontend%20Production-black?style=for-the-badge&logo=vercel&logoColor=white)](https://aws2-frontend.vercel.app)
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)

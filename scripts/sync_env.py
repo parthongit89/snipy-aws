@@ -48,7 +48,6 @@ self.SNIPLY_ENV = {{
             f.write(js_content)
         print(f"[Sniply] Successfully synced .env -> {target.relative_to(ROOT_DIR)}")
 
-    print(f"[Sniply] Successfully synced .env -> {TARGET_FILE.relative_to(ROOT_DIR)}")
     print("[Sniply] extension/env.js is gitignored and will never be tracked by git.")
 
 if __name__ == "__main__":

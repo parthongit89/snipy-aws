@@ -627,7 +627,7 @@ function renderFixesCards(items) {
           ${escapeHtml(displayTag)}
         </span>
         <span class="hidden md:inline-flex text-xs font-mono font-light text-white/60 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10 shrink-0">
-          ${compBefore} &rarr; ${compAfter}
+          ${escapeHtml(compBefore)} &rarr; ${escapeHtml(compAfter)}
         </span>
       </div>
 
@@ -635,9 +635,17 @@ function renderFixesCards(items) {
         <div class="w-[25px] h-[25px] flex items-center justify-center shrink-0">
           <img src="assets/python.png" alt="Python" class="w-full h-full object-contain opacity-85 group-hover:opacity-100 transition-opacity" />
         </div>
-        <button type="button" onclick="event.stopPropagation(); handleDeleteFix('${item.id}')" title="Delete this fix" class="opacity-0 group-hover:opacity-100 text-white/40 hover:text-rose-400 text-2xl font-light transition-all cursor-pointer leading-none">&times;</button>
+        <button type="button" class="btn-del-fix opacity-0 group-hover:opacity-100 text-white/40 hover:text-rose-400 text-2xl font-light transition-all cursor-pointer leading-none" title="Delete this fix">&times;</button>
       </div>
     `;
+
+    const delBtn = card.querySelector(".btn-del-fix");
+    if (delBtn) {
+      delBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        handleDeleteFix(item.id);
+      });
+    }
 
     card.addEventListener("click", () => {
       openFixDetailModal(item);
@@ -838,13 +846,16 @@ function renderLanguagePills() {
       </div>
       <button 
         type="button" 
-        onclick="removeLanguage('${escapeHtml(lang)}')" 
-        title="Remove ${escapeHtml(lang)}" 
-        class="text-white/40 hover:text-rose-400 text-2xl font-light cursor-pointer leading-none transition-colors"
+        class="btn-remove-lang text-white/40 hover:text-rose-400 text-2xl font-light cursor-pointer leading-none transition-colors"
+        title="Remove ${escapeHtml(lang)}"
       >
         &times;
       </button>
     `;
+    const btnRemove = pill.querySelector(".btn-remove-lang");
+    if (btnRemove) {
+      btnRemove.addEventListener("click", () => removeLanguage(lang));
+    }
     container.appendChild(pill);
   });
 }

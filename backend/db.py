@@ -8,14 +8,16 @@ from psycopg2.extras import RealDictCursor
 
 logger = logging.getLogger("sniply-db")
 
-DEFAULT_DB_URL = "postgresql://neondb_owner:npg_3Mwy8uNStxsb@ep-empty-shape-atx8rqzu-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require"
-DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_DB_URL)
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 _pool = None
 
 def get_db_pool():
     global _pool
     if _pool is None:
+        if not DATABASE_URL:
+            logger.warning("DATABASE_URL environment variable is not configured. Neon PostgreSQL is disabled.")
+            raise ValueError("DATABASE_URL environment variable is required for database operations.")
         try:
             logger.info("Initializing Neon PostgreSQL connection pool...")
             _pool = pool.SimpleConnectionPool(
@@ -383,20 +385,22 @@ def consume_daily_token(firebase_uid):
                 cur.execute(sql, (firebase_uid,))
                 row = cur.fetchone()
             conn.commit()
-            tokens_left = row[0] if row else 0
+            tokens_left = (row.get("daily_tokens") if isinstance(row, dict) else row[0]) if row else 0
             return {"tokens_remaining": tokens_left, "success": tokens_left >= 0}
     except Exception as e:
         logger.error(f"Error consuming token: {e}")
         return {"tokens_remaining": 0, "success": False}
 
 def delete_optimization(opt_id, firebase_uid=None):
-    """Deletes a single optimization entry."""
-    sql = "DELETE FROM optimizations WHERE id = %s" + (" AND firebase_uid = %s" if firebase_uid else "") + ";"
-    params = (opt_id, firebase_uid) if firebase_uid else (opt_id,)
+    """Deletes a single optimization entry strictly scoped to the authenticated user."""
+    if not firebase_uid:
+        logger.warning(f"delete_optimization rejected: firebase_uid required (opt_id: {opt_id})")
+        return False
+    sql = "DELETE FROM optimizations WHERE id = %s AND firebase_uid = %s;"
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute(sql, params)
+                cur.execute(sql, (opt_id, firebase_uid))
                 deleted = cur.rowcount
             conn.commit()
             return deleted > 0

@@ -247,6 +247,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
   function renderOptimizationCard(res) {
     diffCard.classList.remove("hidden");
     diffSummary.textContent = res.summary || "Code Simplified Successfully";
@@ -260,8 +270,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const row = document.createElement("div");
         row.className = c.type === "delete" ? "p-2 bg-rose-50 border-l-4 border-rose-500 rounded text-rose-900" : "p-2 bg-emerald-50 border-l-4 border-emerald-500 rounded text-emerald-900";
         row.innerHTML = `
-          <div class="font-bold">${c.type === "delete" ? "- " : "+ "}${c.line_code || ""}</div>
-          <div class="text-[11px] font-sans opacity-80 mt-0.5">${c.reason || ""}</div>
+          <div class="font-bold">${c.type === "delete" ? "- " : "+ "}${escapeHtml(c.line_code || "")}</div>
+          <div class="text-[11px] font-sans opacity-80 mt-0.5">${escapeHtml(c.reason || "")}</div>
         `;
         diffHunks.appendChild(row);
       });
@@ -338,11 +348,11 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="flex items-center gap-3 text-sm sm:text-base">
           <span class="font-mono text-gray-500 font-bold">&lt;&gt;</span>
           <span class="font-medium text-[#12130f]">Opt</span>
-          <span class="font-mono bg-gray-100 px-2 py-0.5 rounded text-black/70 text-xs">${compBefore} &rarr; ${compAfter}</span>
-          <span class="text-black/80 font-normal truncate max-w-[200px] text-xs sm:text-sm">${item.summary || "Complexity reduced"}</span>
+          <span class="font-mono bg-gray-100 px-2 py-0.5 rounded text-black/70 text-xs">${escapeHtml(compBefore)} &rarr; ${escapeHtml(compAfter)}</span>
+          <span class="text-black/80 font-normal truncate max-w-[200px] text-xs sm:text-sm">${escapeHtml(item.summary || "Complexity reduced")}</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-xs text-gray-400 font-mono hidden sm:inline">${timeStr}</span>
+          <span class="text-xs text-gray-400 font-mono hidden sm:inline">${escapeHtml(timeStr)}</span>
           <img src="../assets/python.png" alt="Python" class="w-5 h-5 object-contain" />
         </div>
       `;
