@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snipy — AI Assistant</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            dark: '#12130f',
+            teal: '#002629',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom SVG circular progress */
+    .circle-bg {
+      fill: none;
+      stroke: #e2e8f0;
+      stroke-width: 8;
+    }
+    .circle-progress {
+      fill: none;
+      stroke: #002629;
+      stroke-width: 8;
+      stroke-linecap: round;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dashoffset 0.6s ease;
+    }
+    /* Toggle switch */
+    .toggle-checkbox:checked {
+      right: 0;
+      border-color: #12130f;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: #12130f;
+    }
+  </style>
+</head>
+<body class="bg-white text-[#12130f] font-sans antialiased min-h-screen flex selection:bg-[#12130f] selection:text-white">
+
+  <!-- ================= LEFT SIDEBAR (Matching Figma Node 1:3, 4:138, 6:243) ================= -->
+  <aside class="w-48 sm:w-56 border-r border-[#12130f]/15 p-6 flex flex-col justify-between shrink-0 bg-white">
+    <div>
+      <!-- Brand Logo & Name -->
+      <div class="flex items-center gap-3 mb-12 cursor-pointer" onclick="switchTab('home')">
+        <img src="../assets/image 1.png" alt="Snipy Logo" class="w-9 h-9 object-contain" />
+        <span class="font-bold text-2xl tracking-tight text-[#12130f]">Snipy</span>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="space-y-4 text-base font-normal">
+        <button id="nav-home" onclick="switchTab('home')" class="w-full text-left py-2 px-3 rounded-lg text-black font-semibold bg-gray-100/80 transition-all flex items-center justify-between">
+          <span>Home</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-black"></span>
+        </button>
+        <button id="nav-custom" onclick="switchTab('custom')" class="w-full text-left py-2 px-3 rounded-lg text-black/60 hover:text-black hover:bg-gray-50 transition-all flex items-center justify-between">
+          <span>Custom</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-transparent"></span>
+        </button>
+        <button id="nav-settings" onclick="switchTab('settings')" class="w-full text-left py-2 px-3 rounded-lg text-black/60 hover:text-black hover:bg-gray-50 transition-all flex items-center justify-between">
+          <span>Settings</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-transparent"></span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Active Bedrock Badge at bottom -->
+    <div class="p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono flex items-center gap-2 text-gray-700">
+      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="truncate">AWS Bedrock Live</span>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN CONTENT VIEWPORT ================= -->
+  <main class="flex-1 p-8 sm:p-10 overflow-y-auto max-w-5xl">
+
+    <!-- ================= VIEW 1: HOME (Figma Node 1:3) ================= -->
+    <section id="view-home" class="space-y-8">
+      
+      <!-- Greeting -->
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-light text-[#002629] mb-1">Welcome back!</h1>
+        <p class="text-lg text-[#002629]/75 font-normal">Time to drop some clean code.</p>
+      </div>
+
+      <!-- Quick Action: Optimize Active Code -->
+      <div class="flex items-center gap-3 flex-wrap">
+        <button id="btn-optimize-now" class="px-6 py-3 bg-[#12130f] hover:bg-black text-white font-medium text-sm rounded-full shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+          <span>⚡ Run Snipy Optimization</span>
+          <span class="text-xs bg-white/20 px-2 py-0.5 rounded font-mono">Ctrl+Shift+O</span>
+        </button>
+        <button id="btn-open-tab" onclick="chrome.tabs.create({ url: chrome.runtime.getURL('dashboard/dashboard.html') })" class="px-4 py-3 bg-gray-100 hover:bg-black hover:text-white text-gray-800 text-sm font-medium rounded-full transition-colors flex items-center gap-1.5">
+          <span>Open Full Dashboard ↗</span>
+        </button>
+        <button id="btn-refresh-stats" onclick="refreshSessionStats()" class="px-4 py-3 border border-gray-300 hover:border-black text-gray-700 text-sm rounded-full transition-colors">
+          ↻ Refresh Log
+        </button>
+      </div>
+
+      <!-- Live Loading State -->
+      <div id="loader" class="hidden items-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-600 font-mono">
+        <div class="w-4 h-4 border-2 border-gray-400 border-t-black rounded-full animate-spin"></div>
+        <span>Snipy analyzing 100–120 lines via AWS Bedrock...</span>
+      </div>
+
+      <!-- Live Optimization Diff Card (Appears when optimization runs) -->
+      <div id="diff-card" class="hidden bg-white border border-[#1e1e1e] rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+          <div class="flex items-center gap-3">
+            <span class="text-xs uppercase font-bold tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+              ⚡ Bedrock Optimization
+            </span>
+            <span id="diff-summary" class="text-sm font-semibold text-black">Code Simplified</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="badge-complexity" class="text-xs font-mono px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">O(N²) &rarr; O(N)</span>
+          </div>
+        </div>
+
+        <!-- Line changes -->
+        <div id="diff-hunks" class="space-y-2 text-xs font-mono">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Full code preview -->
+        <div class="space-y-1">
+          <span class="text-[11px] font-mono text-gray-400 font-semibold">OPTIMIZED REPLACEMENT:</span>
+          <pre id="diff-code" class="p-3 bg-gray-900 text-emerald-400 rounded-lg font-mono text-xs overflow-x-auto"></pre>
+        </div>
+
+        <!-- Apply Button -->
+        <div class="flex items-center gap-3 pt-2">
+          <button id="btn-apply-editor" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-lg shadow transition-colors">
+            ✓ Apply to Active Editor
+          </button>
+          <button id="btn-copy-code" class="px-4 py-2.5 border border-gray-300 hover:border-black text-gray-800 font-medium text-sm rounded-lg transition-colors">
+            Copy
+          </button>
+        </div>
+      </div>
+
+      <!-- Session Log Card (Figma Node 3:42 & 4:133) -->
+      <div>
+        <h2 class="text-2xl font-medium text-[#002629] mb-4">Session Log</h2>
+        
+        <div class="border-[2px] border-[#12130f]/15 rounded-[15px] p-8 bg-white grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          
+          <!-- Stat 1: Total Fixes -->
+          <div class="flex flex-col items-center">
+            <div class="relative w-28 h-28 flex items-center justify-center">
+              <svg class="w-full h-full" viewBox="0 0 100 100">
+                <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
+                <circle id="circle-fixes" class="circle-progress" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="38"></circle>
+              </svg>
+              <span id="stat-fixes" class="absolute font-light text-2xl text-black">85%</span>
+            </div>
+            <span class="text-base font-light text-black mt-3">Total Fixes</span>
+          </div>
+
+          <!-- Stat 2: Mistakes -->
+          <div class="flex flex-col items-center">
+            <div class="relative w-28 h-28 flex items-center justify-center">
+              <svg class="w-full h-full" viewBox="0 0 100 100">
+                <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
+                <circle id="circle-mistakes" class="circle-progress" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="180"></circle>
+              </svg>
+              <span id="stat-mistakes" class="absolute font-light text-2xl text-black">12%</span>
+            </div>
+            <span class="text-base font-light text-black mt-3">Mistakes</span>
+          </div>
+
+          <!-- Stat 3: Syntax Errors -->
+          <div class="flex flex-col items-center">
+            <div class="relative w-28 h-28 flex items-center justify-center">
+              <svg class="w-full h-full" viewBox="0 0 100 100">
+                <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
+                <circle id="circle-syntax" class="circle-progress" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="230"></circle>
+              </svg>
+              <span id="stat-syntax" class="absolute font-light text-2xl text-black">3%</span>
+            </div>
+            <span class="text-base font-light text-black mt-3">Syntax Errors</span>
+          </div>
+
+          <!-- Stat 4: Usage -->
+          <div class="flex flex-col items-center">
+            <div class="relative w-28 h-28 flex items-center justify-center">
+              <svg class="w-full h-full" viewBox="0 0 100 100">
+                <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
+                <circle id="circle-usage" class="circle-progress" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="20"></circle>
+              </svg>
+              <span id="stat-usage" class="absolute font-light text-2xl text-black">94%</span>
+            </div>
+            <span class="text-base font-light text-black mt-3">Usage</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Fixes & Debug List (Figma Node 4:132) -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl sm:text-2xl font-medium text-[#002629]">Fixes &amp; Debug</h2>
+          <div class="flex items-center gap-3">
+            <button class="p-1.5 hover:bg-gray-100 rounded-lg transition-colors" title="Search Fixes">
+              <img src="../assets/find.svg" alt="Search" class="w-5 h-5 object-contain opacity-80" />
+            </button>
+            <button class="p-1.5 hover:bg-gray-100 rounded-lg transition-colors" title="Filter List">
+              <img src="../assets/sort.svg" alt="Filter" class="w-5 h-5 object-contain opacity-80" />
+            </button>
+          </div>
+        </div>
+
+        <div id="fixes-debug-list" class="space-y-3">
+          <!-- Item 1 (From Figma) -->
+          <div class="border-[2px] border-[#12130f]/20 rounded-[10px] p-4 flex items-center justify-between hover:border-black transition-colors cursor-pointer" onclick="populateDemoFix('def')">
+            <div class="flex items-center gap-4 text-base sm:text-lg">
+              <span class="font-mono text-gray-500 font-bold">&lt;&gt;</span>
+              <span class="font-medium text-[#12130f]">Fix</span>
+              <span class="font-mono bg-gray-100 px-2 py-0.5 rounded text-black/70 text-sm">def</span>
+              <span class="text-black/80 font-normal">keyword</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-400 font-mono hidden sm:inline">2 mins ago</span>
+              <img src="../assets/python.png" alt="Python" class="w-5 h-5 object-contain" />
+            </div>
+          </div>
+
+          <!-- Item 2 (From Figma) -->
+          <div class="border-[2px] border-[#12130f]/20 rounded-[10px] p-4 flex items-center justify-between hover:border-black transition-colors cursor-pointer" onclick="populateDemoFix('loop')">
+            <div class="flex items-center gap-4 text-base sm:text-lg">
+              <span class="font-mono text-gray-500 font-bold">&lt;&gt;</span>
+              <span class="font-medium text-[#12130f]">Fix</span>
+              <span class="font-mono bg-gray-100 px-2 py-0.5 rounded text-black/70 text-sm">while</span>
+              <span class="text-black/80 font-normal">O(N²) loop &rarr; max() stdlib</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-400 font-mono hidden sm:inline">15 mins ago</span>
+              <img src="../assets/python.png" alt="Python" class="w-5 h-5 object-contain" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= VIEW 2: CUSTOM (Figma Node 4:138) ================= -->
+    <section id="view-custom" class="hidden space-y-10">
+      
+      <h1 class="text-3xl font-normal text-[#12130f]">Custom</h1>
+
+      <!-- Language Selector -->
+      <div class="space-y-4">
+        <label class="block text-xl font-light text-[#12130f]">
+          Search your preferred language to code in editor's
+        </label>
+        
+        <!-- Search Bar with + icon -->
+        <div class="relative max-w-2xl">
+          <input type="text" id="lang-search" placeholder="Search for Python, C..." class="w-full bg-white border-2 border-black/55 rounded-[25px] px-6 py-3.5 text-base text-[#12130f] focus:outline-none focus:border-black" />
+          <button class="absolute right-5 top-3.5 text-xl font-bold text-gray-500 hover:text-black">+</button>
+        </div>
+
+        <!-- Selected Language Pill -->
+        <div class="inline-flex items-center gap-3 border border-[#002629] rounded-[25px] px-6 py-2.5 bg-white">
+          <img src="../assets/python.png" alt="Python" class="w-5 h-5 object-contain" />
+          <span class="text-lg font-medium text-[#002629]">Python</span>
+        </div>
+      </div>
+
+      <!-- Custom AI Prompt Preferences -->
+      <div class="space-y-4">
+        <label class="block text-xl font-light text-[#12130f]">
+          Set your preferences to tailor your AI assistant
+        </label>
+
+        <!-- Big Rounded Textarea -->
+        <div class="max-w-2xl">
+          <textarea id="custom-rules" rows="5" placeholder="Drop your stack, goals, or custom coding rules..." class="w-full bg-white border-2 border-black/45 rounded-[20px] p-6 text-base text-[#12130f] placeholder-gray-400 focus:outline-none focus:border-black resize-none"></textarea>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-4 pt-2">
+          <button id="btn-submit-custom" class="px-8 py-3 bg-[#12130f] hover:bg-black text-white font-medium text-lg rounded-[30px] shadow transition-colors">
+            Submit
+          </button>
+          <button id="btn-edit-custom" class="px-8 py-3 bg-[#12130f]/60 hover:bg-[#12130f]/80 text-white font-medium text-lg rounded-[30px] flex items-center gap-2 transition-colors">
+            <img src="../assets/edit.svg" alt="Edit" class="w-4 h-4 object-contain invert" />
+            <span>Edit</span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= VIEW 3: SETTINGS (Figma Node 6:243) ================= -->
+    <section id="view-settings" class="hidden space-y-10">
+      
+      <h1 class="text-3xl font-normal text-[#12130f]">Settings</h1>
+
+      <!-- Mode Selector -->
+      <div class="space-y-3 max-w-2xl">
+        <label class="block text-xl font-normal text-[#12130f] opacity-95">
+          Adjust AI assistant
+        </label>
+        <div class="relative">
+          <select id="setting-mode" class="w-full bg-white border-2 border-black/85 rounded-[5px] px-6 py-3 text-base text-[#12130f] appearance-none focus:outline-none focus:border-black cursor-pointer">
+            <option value="strict">Strict Anti-Overengineering (KISS / YAGNI)</option>
+            <option value="speed">Performance &amp; Time Complexity First</option>
+            <option value="educational">Educational Coaching (Detailed explanations)</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-700">
+            ▼
+          </div>
+        </div>
+      </div>
+
+      <!-- Set Context Window Lines -->
+      <div class="flex items-center justify-between max-w-2xl border-t border-gray-100 pt-6">
+        <div>
+          <label class="block text-xl font-normal text-[#12130f] opacity-95">Set context Window</label>
+          <span class="text-xs text-gray-500 font-light">Sliding lines around active cursor (Recommended: 100-120)</span>
+        </div>
+        <input type="number" id="setting-window" value="120" min="20" max="200" class="w-24 bg-white border-2 border-black/85 rounded-[5px] px-3 py-2 text-center text-lg font-light text-[#12130f] focus:outline-none focus:border-black" />
+      </div>
+
+      <!-- AWS Bedrock Mantle Settings (Isolated & Secure Local Storage) -->
+      <div class="space-y-4 max-w-2xl border-t border-gray-100 pt-6">
+        <div>
+          <h2 class="text-xl font-normal text-[#12130f] opacity-95">AWS Bedrock Mantle API</h2>
+          <p class="text-xs text-gray-500 mt-1">Stored securely in your local browser only. Never hardcoded or committed to git.</p>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-[#12130f]">API Key (Secret)</label>
+          <div class="relative flex items-center">
+            <input type="password" id="setting-api-key" placeholder="Enter your AWS Bedrock API key..." class="w-full bg-white border-2 border-black/85 rounded-[5px] px-4 py-2.5 text-sm text-[#12130f] font-mono focus:outline-none focus:border-black pr-20" />
+            <button type="button" id="btn-toggle-key" class="absolute right-2 text-xs font-semibold px-2 py-1 text-gray-600 hover:text-black">
+              Show
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <label class="block text-xs font-medium text-gray-600">AWS Region</label>
+            <input type="text" id="setting-region" value="ap-southeast-2" class="w-full bg-white border-2 border-black/85 rounded-[5px] px-3 py-2 text-sm text-[#12130f] focus:outline-none focus:border-black" />
+          </div>
+          <div class="space-y-1">
+            <label class="block text-xs font-medium text-gray-600">Model ID</label>
+            <input type="text" id="setting-model" value="qwen.qwen3-coder-30b-a3b-instruct" class="w-full bg-white border-2 border-black/85 rounded-[5px] px-3 py-2 text-sm text-[#12130f] focus:outline-none focus:border-black" />
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-1">
+          <button type="button" id="btn-test-connection" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-[8px] text-xs font-semibold text-[#12130f] transition-colors">
+            ⚡ Test Bedrock Connection
+          </button>
+          <span id="test-connection-status" class="text-xs font-medium hidden"></span>
+        </div>
+      </div>
+
+      <!-- General Preferences Switches -->
+      <div class="space-y-6 max-w-2xl border-t border-gray-100 pt-6">
+        <h2 class="text-xl font-normal text-[#12130f] opacity-95">General Preferences</h2>
+        
+        <!-- Switch 1: Theme -->
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-medium text-base text-[#12130f]">Theme Preference</h3>
+            <p class="text-xs text-gray-500">Dark Mode / Light Mode</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="pref-theme" class="sr-only peer" checked />
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
+          </label>
+        </div>
+
+        <!-- Switch 2: Auto-Suggestions -->
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-medium text-base text-[#12130f]">Auto-Suggestions</h3>
+            <p class="text-xs text-gray-500">Enable/Disable live line-by-line suggestions while typing.</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="pref-autosuggest" class="sr-only peer" checked />
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
+          </label>
+        </div>
+
+        <!-- Switch 3: Data & Privacy -->
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-medium text-base text-[#12130f]">Data &amp; Privacy</h3>
+            <p class="text-xs text-gray-500">Session history aur daily progress tracking</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="pref-privacy" class="sr-only peer" checked />
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="pt-4">
+        <button id="btn-save-settings" class="px-10 py-3 bg-[#12130f] hover:bg-black text-white font-medium text-lg rounded-[30px] shadow transition-colors">
+          Save
+        </button>
+        <span id="save-feedback" class="ml-4 text-sm font-medium text-emerald-600 hidden">✓ Settings saved to local extension storage</span>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

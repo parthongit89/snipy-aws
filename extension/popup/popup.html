@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snipy — Anti-Overengineering Assistant</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 440px;
+      background: #000000;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Google Sans', 'Plus Jakarta Sans', Roboto, sans-serif;
+      padding: 14px 16px 12px 16px;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    /* Screen-constraints Hero Capsule (Group 59.png & Group 58.png) */
+    .screen-constraint-capsule {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+      border-radius: 9999px;
+      background: #000000;
+      border: 2px solid #0672fe;
+      padding: 0 16px 0 16px;
+      box-shadow: 0 0 16px rgba(6, 114, 254, 0.42), 0 14px 40px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .screen-constraint-capsule:hover {
+      box-shadow: 0 0 22px rgba(6, 114, 254, 0.65), 0 18px 45px rgba(0, 0, 0, 0.95);
+      transform: translateY(-1px);
+    }
+
+    /* VIEW 1: Activate Snipy (Group 59.png) */
+    #view-activate {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .activate-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .capsule-cube-icon {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+    .activate-title {
+      font-size: 16px;
+      font-weight: 400;
+      color: #ffffff;
+      letter-spacing: -0.2px;
+      font-family: 'Google Sans', 'Plus Jakarta Sans', sans-serif;
+    }
+    .activate-key-badge {
+      color: #a1a1aa;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 8px;
+      padding: 3px 12px;
+      background: rgba(255, 255, 255, 0.04);
+      white-space: nowrap;
+    }
+
+    /* VIEW 2: Suggestion Pill (Group 58.png) */
+    #view-suggestion {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 10px;
+    }
+    .suggestion-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+      white-space: nowrap;
+      flex: 1;
+    }
+    .suggestion-func {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 15px;
+      color: #9ca3af;
+      letter-spacing: -0.3px;
+      flex-shrink: 0;
+    }
+    .suggestion-text {
+      font-size: 15px;
+      font-weight: 400;
+      color: #ffffff;
+      letter-spacing: -0.2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .suggestion-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .pill-btn-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0;
+    }
+    .pill-btn-circle:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #ffffff;
+      transform: scale(1.08);
+    }
+    .pill-btn-circle:active {
+      transform: scale(0.95);
+    }
+    .pill-btn-cube {
+      width: 30px;
+      height: 30px;
+      background: transparent;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0.75;
+      transition: all 0.2s ease;
+      padding: 0;
+    }
+    .pill-btn-cube:hover {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+
+    /* VIEW 3: Status / Scanning / Applied (Group 40, Group 36, 37, 38, Suggestion apply) */
+    #view-status {
+      display: none;
+      align-items: center;
+      width: 100%;
+      gap: 12px;
+    }
+    .status-text {
+      font-size: 15px;
+      font-weight: 400;
+      color: #ffffff;
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Scanning animation (Group 40.png) */
+    @keyframes pulse-blue {
+      0%, 100% {
+        box-shadow: 0 0 14px rgba(6, 114, 254, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      }
+      50% {
+        box-shadow: 0 0 28px rgba(6, 114, 254, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      }
+    }
+    .capsule-scanning {
+      animation: pulse-blue 1.6s infinite ease-in-out;
+    }
+    .capsule-applied {
+      border-color: #10b981 !important;
+      box-shadow: 0 0 22px rgba(16, 185, 129, 0.6) !important;
+    }
+    .capsule-error {
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.4) !important;
+    }
+    .capsule-warning {
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.4) !important;
+    }
+
+    /* Minimal Quick Nav Footer */
+    .capsule-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 11px;
+      padding: 0 6px;
+      font-size: 11px;
+      color: #71717a;
+    }
+    .capsule-footer a {
+      color: #a1a1aa;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 500;
+      transition: color 0.2s;
+      cursor: pointer;
+    }
+    .capsule-footer a:hover {
+      color: #0672fe;
+    }
+    .settings-btn {
+      background: none;
+      border: none;
+      color: #71717a;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .settings-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Collapsible Settings Drawer */
+    #settings-drawer {
+      display: none;
+      margin-top: 10px;
+      padding: 12px;
+      background: #09090b;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      font-size: 11px;
+    }
+    .drawer-field { margin-bottom: 8px; }
+    .drawer-field label { display: block; color: #a1a1aa; font-weight: 600; margin-bottom: 3px; }
+    .drawer-field input, .drawer-field select {
+      width: 100%;
+      background: #141418;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: inherit;
+    }
+    .drawer-btn {
+      width: 100%;
+      background: #0672fe;
+      border: 1px solid #3b82f6;
+      color: #fff;
+      padding: 7px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background 0.2s;
+    }
+    .drawer-btn:hover { background: #0056c7; }
+  </style>
+</head>
+<body>
+  <!-- The Screen-constraints Hero Capsule -->
+  <div id="sniply-popup-capsule" class="screen-constraint-capsule">
+    
+    <!-- 1. ACTIVATE STATE (Group 59.png) -->
+    <div id="view-activate">
+      <div class="activate-left">
+        <img class="capsule-cube-icon" src="../assets/icons/cube-icon.png" alt="Snipy" />
+        <span class="activate-title">Activate Snipy</span>
+      </div>
+      <span class="activate-key-badge">Ctrl + .</span>
+    </div>
+
+    <!-- 2. SUGGESTION APPLIED / PENDING STATE (Group 58.png) -->
+    <div id="view-suggestion">
+      <div class="suggestion-info">
+        <span id="capsule-func" class="suggestion-func">--</span>
+        <span id="capsule-issue" class="suggestion-text">Reviewing Code...</span>
+      </div>
+      <div class="suggestion-actions">
+        <!-- Circle Checkmark Button (Apply Fix) -->
+        <button id="btn-capsule-check" class="pill-btn-circle" title="Accept & Apply Fix In-Place">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </button>
+
+        <!-- Circle Cross Button (Dismiss) -->
+        <button id="btn-capsule-cross" class="pill-btn-circle" title="Dismiss / Ignore">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <!-- Cube Icon Button (Open Dashboard / Sidepanel) -->
+        <button id="btn-capsule-cube" class="pill-btn-cube" title="Open Full Snipy Details">
+          <img class="capsule-cube-icon" src="../assets/icons/cube-icon.png" alt="Details" />
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. STATUS / SCANNING / ERROR STATE (Group 40, Group 36, 37, 38, Suggestion apply) -->
+    <div id="view-status">
+      <img id="status-cube-icon" class="capsule-cube-icon" src="../assets/icons/cube-icon.png" alt="Snipy" />
+      <span id="status-text" class="status-text">Scanning Code....</span>
+    </div>
+
+  </div>
+
+  <!-- Minimal Footer -->
+  <div class="capsule-footer">
+    <span style="display:flex; align-items:center; gap:5px;">
+      <span style="width:6px; height:6px; border-radius:50%; background:#34d399; box-shadow:0 0 6px #34d399;"></span>
+      <span>AWS Bedrock Online</span>
+    </span>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <a id="link-dashboard">Dashboard ↗</a>
+      <button id="btn-toggle-settings" class="settings-btn" title="Settings">⚙️</button>
+    </div>
+  </div>
+
+  <!-- Settings Drawer -->
+  <div id="settings-drawer">
+    <div class="drawer-field">
+      <label for="apiKey">Custom Bedrock API Key (Optional)</label>
+      <input type="password" id="apiKey" placeholder="Leave blank for cloud gateway" />
+    </div>
+    <div class="drawer-field">
+      <label for="awsRegion">AWS Region</label>
+      <select id="awsRegion">
+        <option value="ap-southeast-2">Asia Pacific (Sydney) — ap-southeast-2</option>
+        <option value="us-east-1">US East (N. Virginia) — us-east-1</option>
+        <option value="us-west-2">US West (Oregon) — us-west-2</option>
+      </select>
+    </div>
+    <div class="drawer-field">
+      <label for="modelId">Model ID</label>
+      <select id="modelId">
+        <option value="anthropic.claude-3-5-haiku-20241022-v1:0">Claude 3.5 Haiku</option>
+        <option value="qwen.qwen3-coder-30b-a3b-instruct">Qwen3 Coder 30B (Ultra Fast)</option>
+        <option value="qwen.qwen3-coder-480b-a35b-instruct">Qwen3 Coder 480B (Refactor)</option>
+        <option value="google.gemma-3-27b-it">Google Gemma 3 27B</option>
+      </select>
+    </div>
+    <button id="btn-save-settings" class="drawer-btn">Save Settings</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

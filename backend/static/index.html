@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Snipy — Real-Time Anti-Overengineering & Code Optimization Assistant</title>
+  
+  <!-- SEO & Metadata -->
+  <meta name="description" content="Snipy eliminates code bloat, reduces O(N²) time complexity to O(N), and replaces over-engineered patterns with clean standard library idioms right inside Google Colab, LeetCode, and Jupyter." />
+  <meta name="keywords" content="Snipy, anti-overengineering, code optimization, Google Colab, LeetCode, Jupyter, AWS Bedrock, Claude 3.5 Haiku, Big-O complexity, Python clean code" />
+  <meta name="author" content="Snipy.ai" />
+  <meta name="theme-color" content="#07090e" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/logo-white.svg" />
+  <link rel="apple-touch-icon" href="assets/logo-white.svg" />
+
+  <!-- Google Fonts: Google Sans Flex, Plus Jakarta Sans, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Google Sans Flex"', '"Google Sans"', '"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+            mono: ['"JetBrains Mono"', '"Google Sans Code"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+          },
+          colors: {
+            canvasBg: '#07090e',
+            canvasSurface: '#0c101c',
+            canvasBorder: 'rgba(255, 255, 255, 0.1)',
+            brandDark: '#12130f',
+            accentEmerald: '#10b981',
+            accentAmber: '#f59e0b',
+            accentRose: '#f43f5e',
+            accentCyan: '#38bdf8',
+          },
+          boxShadow: {
+            'glow-emerald': '0 0 35px -5px rgba(16, 185, 129, 0.3)',
+            'glow-cyan': '0 0 35px -5px rgba(56, 189, 248, 0.3)',
+            'glow-amber': '0 0 35px -5px rgba(245, 158, 11, 0.25)',
+            'glass-card': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @font-face {
+      font-family: 'Google Sans Flex';
+      src: local('Google Sans Flex'), local('Google Sans'), local('Product Sans');
+    }
+    @font-face {
+      font-family: 'Google Sans';
+      src: local('Google Sans'), local('Product Sans');
+    }
+
+    html, body {
+      font-family: 'Google Sans Flex', 'Google Sans', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background-color: #07090e;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* 3D Perspective Plane & Horizon Grid */
+    .perspective-grid {
+      position: absolute;
+      width: 140%;
+      height: 700px;
+      left: -20%;
+      top: -100px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 50px 50px;
+      transform: perspective(600px) rotateX(65deg);
+      transform-origin: center top;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 10%, transparent 80%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 10%, transparent 80%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Ambient Holographic Iridescent Aurora Glows */
+    @keyframes aurora-float {
+      0% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        opacity: 0.45;
+      }
+      33% {
+        transform: translate(30px, -20px) scale(1.08) rotate(10deg);
+        opacity: 0.65;
+      }
+      66% {
+        transform: translate(-25px, 25px) scale(0.95) rotate(-8deg);
+        opacity: 0.50;
+      }
+      100% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        opacity: 0.45;
+      }
+    }
+
+    .aurora-blob-1 {
+      position: absolute;
+      top: -120px;
+      left: 10%;
+      width: 650px;
+      height: 650px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.22) 0%, rgba(56, 189, 248, 0.15) 40%, rgba(99, 102, 241, 0.08) 65%, transparent 75%);
+      filter: blur(80px);
+      -webkit-filter: blur(80px);
+      animation: aurora-float 16s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .aurora-blob-2 {
+      position: absolute;
+      top: 50px;
+      right: 5%;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(244, 63, 94, 0.12) 40%, rgba(16, 185, 129, 0.06) 65%, transparent 75%);
+      filter: blur(90px);
+      -webkit-filter: blur(90px);
+      animation: aurora-float 20s ease-in-out infinite reverse;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Subtle pulse animation for status dots */
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.1); opacity: 0.4; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .animate-pulse-ring {
+      animation: pulse-ring 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Code editor styling & line highlighting */
+    .editor-line-highlight {
+      background-color: rgba(245, 158, 11, 0.16);
+      border-left: 3px solid #f59e0b;
+    }
+    .editor-line-diff-add {
+      background-color: rgba(16, 185, 129, 0.18);
+      border-left: 3px solid #10b981;
+    }
+
+    /* Horseshoe circular gauge */
+    .gauge-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.12);
+      stroke-width: 9;
+      stroke-linecap: round;
+      stroke-dasharray: 212 283;
+      transform: rotate(135deg);
+      transform-origin: 50% 50%;
+    }
+    .gauge-progress {
+      fill: none;
+      stroke: #10b981;
+      stroke-width: 9;
+      stroke-linecap: round;
+      stroke-dasharray: 212 283;
+      stroke-dashoffset: 212;
+      transform: rotate(135deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dashoffset 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Custom minimalist scrollbar for code preview blocks */
+    .code-scroll::-webkit-scrollbar {
+      height: 5px;
+      width: 5px;
+    }
+    .code-scroll::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    .code-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+    }
+    .code-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Glassmorphism card surfaces */
+    .glass-panel {
+      background: rgba(12, 16, 28, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .glass-panel:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Reduce motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+
+  <!-- Firebase v10 Compat CDN -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+</head>
+<body class="bg-[#07090e] text-white min-h-screen flex flex-col justify-between selection:bg-[#10b981] selection:text-black relative">
+
+  <!-- ================= 3D INTERACTIVE CANVAS & AURORA BACKGROUND LAYERS ================= -->
+  <!-- 1. Interactive 3D Canvas (Zero Gravity Isometric Cubes + Dot-Matrix Grid with Cursor Spotlight) -->
+  <canvas id="bg-3d-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+  <!-- 2. Perspective 3D Grid Horizon Plane -->
+  <div class="perspective-grid"></div>
+
+  <!-- 3. Holographic Iridescent Ambient Light Blobs -->
+  <div class="aurora-blob-1"></div>
+  <div class="aurora-blob-2"></div>
+
+  <!-- Main Content Wrapper -->
+  <div class="w-full flex-grow relative z-10 flex flex-col">
+
+    <!-- ================= STICKY HEADER & NAVBAR ================= -->
+    <header id="site-header" class="sticky top-0 z-40 w-full bg-[#07090e]/80 backdrop-blur-md border-b border-white/10 transition-all duration-300">
+      <div class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 h-20 md:h-24 flex items-center justify-between gap-6">
+        
+        <!-- Brand Logo + Name + Beta Tag -->
+        <a href="#home" class="flex items-center gap-3.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-xl p-1" aria-label="Snipy Home">
+          <div class="w-10 h-10 md:w-11 md:h-11 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 duration-200">
+            <img src="assets/logo-white.svg" alt="Snipy Logo" class="w-full h-full object-contain" />
+          </div>
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl md:text-3xl font-medium tracking-tight text-white">Snipy</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-mono font-medium bg-white/10 border border-white/15 text-white/80">
+              v1.0
+            </span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center gap-8 lg:gap-10 text-[15px] lg:text-[16px] font-medium text-white/70" aria-label="Main Navigation">
+          <a href="#features" class="hover:text-white transition-colors py-1">Features</a>
+          <a href="#showcase" class="hover:text-white transition-colors py-1">Showcase</a>
+          <a href="#how-it-works" class="hover:text-white transition-colors py-1">How It Works</a>
+          <a href="#extension" class="hover:text-white transition-colors py-1">Extension</a>
+          <button type="button" onclick="handleDashboardClick(event)" class="inline-flex items-center gap-1.5 text-white hover:text-emerald-400 transition-colors font-medium cursor-pointer">
+            <span>Dashboard</span>
+            <span class="text-xs font-mono text-emerald-400">↗</span>
+          </button>
+        </nav>
+
+        <!-- Right Side: Auth State & Action -->
+        <div class="flex items-center gap-4">
+          <!-- Desktop Auth Container -->
+          <div id="nav-auth-container" class="text-sm md:text-[15px] whitespace-nowrap">
+            <!-- Logged Out State -->
+            <div id="auth-logged-out" class="flex items-center gap-3">
+              <button 
+                type="button" 
+                onclick="triggerGoogleSignIn()" 
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/15 hover:border-white/30 bg-white/5 hover:bg-white/10 text-sm font-medium text-white transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+              >
+                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span>Sign In</span>
+              </button>
+            </div>
+
+            <!-- Logged In State (Hidden by default) -->
+            <div id="auth-logged-in" class="hidden items-center gap-3">
+              <button type="button" onclick="handleDashboardClick(event)" class="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 transition-colors cursor-pointer" title="Go to Dashboard">
+                <img id="user-avatar" src="assets/logo-white.svg" alt="User" class="w-6 h-6 rounded-full object-cover border border-white/20" />
+                <span id="user-name" class="font-medium text-sm text-white">Developer</span>
+                <span class="text-xs font-mono text-emerald-400">●</span>
+              </button>
+              <button type="button" onclick="handleSignOut()" class="text-xs text-white/50 hover:text-rose-400 transition-colors cursor-pointer" title="Sign out of Snipy">
+                Sign out
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile Hamburger Menu Button -->
+          <button 
+            type="button" 
+            id="mobile-menu-btn" 
+            onclick="toggleMobileMenu()" 
+            class="md:hidden p-2 rounded-xl text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+            aria-label="Toggle Navigation Menu"
+            aria-expanded="false"
+          >
+            <svg id="hamburger-icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+            <svg id="close-icon" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Mobile Navigation Drawer -->
+      <div id="mobile-nav-drawer" class="md:hidden hidden border-t border-white/10 bg-[#07090e]/95 backdrop-blur-xl px-6 py-6 transition-all duration-300">
+        <nav class="flex flex-col gap-4 text-base font-medium text-white/90">
+          <a href="#features" onclick="toggleMobileMenu()" class="py-2 hover:text-emerald-400 transition-colors border-b border-white/5">Features</a>
+          <a href="#showcase" onclick="toggleMobileMenu()" class="py-2 hover:text-emerald-400 transition-colors border-b border-white/5">Product Showcase</a>
+          <a href="#how-it-works" onclick="toggleMobileMenu()" class="py-2 hover:text-emerald-400 transition-colors border-b border-white/5">How It Works</a>
+          <a href="#extension" onclick="toggleMobileMenu()" class="py-2 hover:text-emerald-400 transition-colors border-b border-white/5">Get Extension</a>
+          <button type="button" onclick="toggleMobileMenu(); handleDashboardClick(event)" class="text-left py-2 hover:text-emerald-400 transition-colors flex items-center justify-between border-b border-white/5 cursor-pointer">
+            <span>Developer Dashboard</span>
+            <span class="text-xs font-mono bg-white/10 px-2 py-0.5 rounded text-emerald-400">Launch ↗</span>
+          </button>
+          
+          <div class="pt-4 flex flex-col gap-3">
+            <button 
+              type="button" 
+              onclick="toggleMobileMenu(); handleDownloadClick(event)" 
+              class="w-full py-3 px-4 bg-white text-[#07090e] rounded-xl font-medium text-center shadow cursor-pointer hover:bg-slate-100"
+            >
+              Download Extension (.zip)
+            </button>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- ================= HERO SECTION (VS CODE & ANTIGRAVITY CINEMATIC DEPTH) ================= -->
+    <section id="home" class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 pt-12 sm:pt-16 md:pt-24 pb-16 md:pb-28 relative z-20">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
+        
+        <!-- Left Column: Value Headline & CTAs (7 cols on desktop) -->
+        <div class="lg:col-span-7 flex flex-col items-start text-left">
+          
+          <!-- Category Eyebrow Pill with Pulsing Glowing Dot -->
+          <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-6 backdrop-blur-md">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span class="text-xs sm:text-[13px] font-medium text-emerald-300 tracking-wide font-mono">
+              ⚡ Anti-Overengineering Assistant
+            </span>
+          </div>
+
+          <!-- Main Value Headline -->
+          <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-[62px] font-light leading-[1.12] text-white tracking-tight">
+            Stop Over-Engineering.<br class="hidden sm:inline" />
+            <span class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-emerald-300">
+              Ship Clean, O(N) Code.
+            </span>
+          </h1>
+
+          <!-- Concise Supporting Description -->
+          <p class="mt-6 text-lg sm:text-xl text-slate-300 font-normal leading-relaxed max-w-[620px]">
+            Eliminate quadratic loops (<span class="font-mono text-base font-semibold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/40">O(N²)</span>), strip AI-generated boilerplate, and replace redundant patterns with clean standard library idioms right inside <strong class="font-medium text-white">Google Colab, LeetCode, and Jupyter</strong>.
+          </p>
+
+          <!-- Primary & Secondary CTAs -->
+          <div class="mt-8 sm:mt-10 flex flex-wrap items-center gap-4 w-full sm:w-auto">
+            <!-- Primary Action -->
+            <button 
+              type="button" 
+              onclick="handleDownloadClick(event)" 
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-white text-[#07090e] hover:bg-slate-100 text-base sm:text-lg font-semibold rounded-2xl px-8 h-[58px] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_35px_-5px_rgba(255,255,255,0.35)] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+            >
+              <svg class="w-5 h-5 text-[#07090e] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span>Get Extension (.zip)</span>
+            </button>
+
+            <!-- Secondary Action -->
+            <button 
+              type="button" 
+              onclick="handleDashboardClick(event)" 
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-white/20 hover:border-white/40 text-white bg-white/5 hover:bg-white/10 text-base sm:text-lg font-medium rounded-2xl px-7 h-[58px] transition-all hover:scale-[1.02] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 backdrop-blur-md"
+            >
+              <span>Launch Dashboard</span>
+              <span class="text-sm font-mono text-emerald-400">↗</span>
+            </button>
+          </div>
+
+          <!-- Auth & Compatibility Trust Line -->
+          <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-[13px] text-slate-400 font-mono">
+            <span class="flex items-center gap-1.5 text-slate-300">
+              <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Free Google Sign-In
+            </span>
+            <span class="text-white/20">&bull;</span>
+            <span class="flex items-center gap-1.5 text-slate-300">
+              <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Chrome &amp; Edge Manifest V3
+            </span>
+            <span class="text-white/20">&bull;</span>
+            <span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              Shortcut: Ctrl + .
+            </span>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Interactive Code Editor Preview (5 cols on desktop) -->
+        <div class="lg:col-span-5 w-full">
+          
+          <!-- Editor Mockup Card Container -->
+          <div class="relative rounded-2xl bg-[#0b0f19]/90 text-slate-100 border border-white/15 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] backdrop-blur-xl overflow-hidden transition-all duration-300">
+            
+            <!-- Editor Title Bar -->
+            <div class="bg-[#05070d] px-4 py-3 border-b border-white/10 flex items-center justify-between gap-3 select-none">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+                <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+                <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+                <span class="ml-2 text-xs font-mono text-slate-400">colab_notebook.py</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-medium bg-emerald-950 text-emerald-400 border border-emerald-700/60">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Snipy Active
+                </span>
+              </div>
+            </div>
+
+            <!-- Code Comparison State Tabs -->
+            <div class="bg-[#080d1a] px-4 py-2 border-b border-white/10 flex items-center justify-between text-xs">
+              <div class="flex items-center gap-1 font-mono text-slate-400">
+                <span>Sliding Window:</span>
+                <strong class="text-slate-200">Lines 1–12</strong>
+              </div>
+              <!-- Interactive State Toggle -->
+              <div class="flex items-center gap-1 bg-[#05070d] p-0.5 rounded-lg border border-white/10">
+                <button 
+                  type="button" 
+                  id="tab-code-bloat" 
+                  onclick="setHeroEditorState('bloated')" 
+                  class="px-2.5 py-1 rounded text-[11px] font-medium font-mono transition-all text-amber-400 bg-white/10 cursor-pointer"
+                >
+                  Bloated O(N²)
+                </button>
+                <button 
+                  type="button" 
+                  id="tab-code-clean" 
+                  onclick="setHeroEditorState('clean')" 
+                  class="px-2.5 py-1 rounded text-[11px] font-medium font-mono transition-all text-slate-400 hover:text-slate-200 cursor-pointer"
+                >
+                  Clean O(N)
+                </button>
+              </div>
+            </div>
+
+            <!-- Editor Code Area -->
+            <div class="p-4 sm:p-5 font-mono text-xs sm:text-[13px] leading-relaxed overflow-x-auto code-scroll relative">
+              
+              <!-- State 1: Bloated Nested Loop (Default) -->
+              <div id="hero-code-bloated" class="space-y-1">
+                <div class="text-slate-500"><span class="inline-block w-6 text-slate-600 select-none">1</span><span class="text-purple-400">def</span> <span class="text-blue-400">find_unique_elements</span>(arr):</div>
+                <div class="text-slate-500 italic"><span class="inline-block w-6 text-slate-600 select-none">2</span>    <span class="text-slate-500"># Overengineered O(N²) nested loops</span></div>
+                <div class="text-slate-300"><span class="inline-block w-6 text-slate-600 select-none">3</span>    temp_storage = []</div>
+                <div class="text-slate-300 editor-line-highlight -mx-4 px-4 py-0.5"><span class="inline-block w-6 text-amber-500/80 font-bold select-none">4</span>    <span class="text-purple-400">for</span> i <span class="text-purple-400">in</span> <span class="text-yellow-400">range</span>(<span class="text-yellow-400">len</span>(arr)):</div>
+                <div class="text-slate-300 editor-line-highlight -mx-4 px-4 py-0.5"><span class="inline-block w-6 text-amber-500/80 font-bold select-none">5</span>        is_duplicate = <span class="text-purple-400">False</span></div>
+                <div class="text-slate-300 editor-line-highlight -mx-4 px-4 py-0.5"><span class="inline-block w-6 text-amber-500/80 font-bold select-none">6</span>        <span class="text-purple-400">for</span> j <span class="text-purple-400">in</span> <span class="text-yellow-400">range</span>(<span class="text-yellow-400">len</span>(arr)):</div>
+                <div class="text-slate-300 editor-line-highlight -mx-4 px-4 py-0.5"><span class="inline-block w-6 text-amber-500/80 font-bold select-none">7</span>            <span class="text-purple-400">if</span> i != j <span class="text-purple-400">and</span> arr[i] == arr[j]:</div>
+                <div class="text-slate-300"><span class="inline-block w-6 text-slate-600 select-none">8</span>                is_duplicate = <span class="text-purple-400">True</span>; <span class="text-purple-400">break</span></div>
+                <div class="text-slate-300"><span class="inline-block w-6 text-slate-600 select-none">9</span>        <span class="text-purple-400">if</span> <span class="text-purple-400">not</span> is_duplicate:</div>
+                <div class="text-slate-300"><span class="inline-block w-6 text-slate-600 select-none">10</span>           temp_storage.<span class="text-yellow-400">append</span>(arr[i])</div>
+                <div class="text-slate-300"><span class="inline-block w-6 text-slate-600 select-none">11</span>   <span class="text-purple-400">return</span> temp_storage</div>
+              </div>
+
+              <!-- State 2: Clean Snipy Code (Revealed on Accept or Tab click) -->
+              <div id="hero-code-clean" class="hidden space-y-1">
+                <div class="text-slate-500"><span class="inline-block w-6 text-slate-600 select-none">1</span><span class="text-purple-400">def</span> <span class="text-blue-400">find_unique_elements</span>(arr):</div>
+                <div class="text-emerald-400 italic"><span class="inline-block w-6 text-emerald-500 select-none">2</span>    <span class="text-emerald-400"># Snipy Clean: O(N) hash preservation</span></div>
+                <div class="text-slate-300 editor-line-diff-add -mx-4 px-4 py-1.5"><span class="inline-block w-6 text-emerald-400 font-bold select-none">3</span>    <span class="text-purple-400 font-bold">return</span> <span class="text-yellow-400 font-bold">list</span>(<span class="text-yellow-400 font-bold">dict</span>.<span class="text-yellow-400 font-bold">fromkeys</span>(arr))</div>
+                <div class="pt-2 text-xs text-slate-400 font-mono">
+                  <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-800 text-[11px]">
+                    <span>✓ Algorithmic Downgrade: O(N²) ➔ O(N)</span>
+                    <span>&bull;</span>
+                    <span>8 lines eliminated</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Floating In-Editor Tooltip Popover (Figma 8:301 Spec) -->
+              <div id="hero-editor-popover" class="mt-4 pt-3 border-t border-white/10">
+                <div class="bg-[#0f172a] rounded-xl p-3.5 shadow-2xl border border-white/20 text-white transition-all duration-300">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-1.5">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                          O(N²) Detected
+                        </span>
+                        <span class="text-xs font-mono text-slate-400">Suggested Standard Lib:</span>
+                      </div>
+                      
+                      <!-- Suggested Replacement Code Badge -->
+                      <div class="bg-black/50 border border-white/15 rounded px-2.5 py-1 text-xs font-mono text-emerald-300 font-semibold inline-block">
+                        return list(dict.fromkeys(arr))
+                      </div>
+                      <p class="text-xs text-slate-300 mt-1">
+                        Replaces quadratic nested scan with linear standard library hash preservation.
+                      </p>
+                    </div>
+
+                    <!-- Action Buttons: Accept / Dismiss -->
+                    <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                      <button 
+                        type="button" 
+                        onclick="setHeroEditorState('clean')" 
+                        class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-all shadow hover:scale-105 cursor-pointer"
+                        title="Accept & Replace Code"
+                      >
+                        <img src="assets/check.svg" alt="✓" class="w-3 h-3 object-contain invert brightness-0" />
+                        <span>Accept [✓]</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        onclick="setHeroEditorState('dismissed')" 
+                        class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-slate-300 text-xs font-medium rounded-lg flex items-center gap-1 transition-all cursor-pointer"
+                        title="Dismiss Recommendation"
+                      >
+                        <img src="assets/cross.svg" alt="✕" class="w-2.5 h-2.5 object-contain" />
+                        <span>Dismiss</span>
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Editor Footer Status Bar -->
+            <div class="bg-[#05070d] px-4 py-2 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <div class="flex items-center gap-3">
+                <span class="text-slate-500">Debounce: <strong class="text-slate-300">350ms</strong></span>
+                <span class="text-slate-500">Target: <strong class="text-slate-300">Monaco &bull; Colab</strong></span>
+              </div>
+              <div class="flex items-center gap-1.5 text-emerald-400 font-medium">
+                <span>⚡ AST + AWS Bedrock</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================= FACTUAL TRUST & PLATFORM SUPPORT STRIP ================= -->
+    <section class="w-full bg-white/[0.02] border-y border-white/10 py-10 relative z-20 backdrop-blur-sm">
+      <div class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="max-w-xs">
+            <span class="text-xs uppercase tracking-wider font-semibold text-emerald-400 font-mono">Supported Environments</span>
+            <h3 class="text-lg font-medium text-white mt-1">Direct In-Editor Hooks</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Operates natively via Chrome &amp; Edge browser extension</p>
+          </div>
+
+          <!-- Platform Badges List -->
+          <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 flex-1 md:justify-end">
+            <span class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm font-medium text-slate-200 hover:border-white/20 transition-colors">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              Google Colab
+            </span>
+            <span class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm font-medium text-slate-200 hover:border-white/20 transition-colors">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              LeetCode
+            </span>
+            <span class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm font-medium text-slate-200 hover:border-white/20 transition-colors">
+              <span class="w-2 h-2 rounded-full bg-orange-400"></span>
+              Jupyter Notebooks
+            </span>
+            <span class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm font-medium text-slate-200 hover:border-white/20 transition-colors">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              HackerRank
+            </span>
+            <span class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm font-medium text-slate-200 hover:border-white/20 transition-colors">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              VS Code Web &amp; Replit
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= FEATURE & VALUE SECTION ================= -->
+    <section id="features" class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-20 md:py-28 relative z-20">
+      
+      <!-- Section Header -->
+      <div class="max-w-3xl mb-14 md:mb-18">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-mono font-medium text-emerald-300 mb-4">
+          Core Engine Capabilities
+        </div>
+        <h2 class="text-3xl sm:text-4xl md:text-[44px] font-light tracking-tight text-white leading-tight">
+          Engineered for Clean Code.<br />
+          <span class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-emerald-300">
+            Built Without Artificial Complexity.
+          </span>
+        </h2>
+        <p class="mt-4 text-lg text-slate-300 font-normal leading-relaxed">
+          Snipy combines lightweight in-browser AST parsing with AWS Bedrock to identify code bloat in real time without disrupting your focus.
+        </p>
+      </div>
+
+      <!-- 6 Capability Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        
+        <!-- Card 1: Sliding Window -->
+        <div class="glass-panel rounded-2xl p-7 hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between group shadow-xl">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-xl text-emerald-400 mb-6 group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-medium text-white tracking-tight">100–120 Line Sliding Context</h3>
+            <p class="mt-3 text-sm text-slate-300 leading-relaxed font-normal">
+              Instead of slow, expensive full-file rewrites, Snipy focuses strictly on the active function bounded to 100–120 lines around your active cursor.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-slate-400">
+            <span>350ms Typing Debounce</span>
+            <span class="text-emerald-400 font-semibold">Zero Lag</span>
+          </div>
+        </div>
+
+        <!-- Card 2: In-Editor Tooltips -->
+        <div class="glass-panel rounded-2xl p-7 hover:border-cyan-500/40 transition-all duration-300 flex flex-col justify-between group shadow-xl">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-xl text-cyan-400 mb-6 group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-medium text-white tracking-tight">Non-Destructive In-Editor Tooltips</h3>
+            <p class="mt-3 text-sm text-slate-300 leading-relaxed font-normal">
+              Clean popovers anchor directly over offending lines. Click <span class="font-mono text-xs font-bold text-emerald-300">[✓ Accept]</span> to replace code in-place, or dismiss with zero context-switching.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-slate-400">
+            <span>In-Place Code Replace</span>
+            <span class="text-cyan-400 font-semibold">1-Click</span>
+          </div>
+        </div>
+
+        <!-- Card 3: Big-O Reductions -->
+        <div class="glass-panel rounded-2xl p-7 hover:border-amber-500/40 transition-all duration-300 flex flex-col justify-between group shadow-xl">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-xl text-amber-400 mb-6 group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-medium text-white tracking-tight">Big-O Complexity Downgrades</h3>
+            <p class="mt-3 text-sm text-slate-300 leading-relaxed font-normal">
+              Catches quadratic loops (<span class="font-mono text-xs font-medium text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-500/30">O(N²)</span>) and recommends hash sets, dictionaries, or standard library primitives to drop execution down to <span class="font-mono text-xs font-medium text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30">O(N)</span>.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-slate-400">
+            <span>Algorithmic Optimization</span>
+            <span class="text-amber-400 font-semibold">O(N²) ➔ O(N)</span>
+          </div>
+        </div>
+
+        <!-- Card 4: AI Bloat Stripper -->
+        <div class="glass-panel rounded-2xl p-7 hover:border-rose-500/40 transition-all duration-300 flex flex-col justify-between group shadow-xl">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-xl text-rose-400 mb-6 group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-medium text-white tracking-tight">AI Boilerplate &amp; Bloat Stripper</h3>
+            <p class="mt-3 text-sm text-slate-300 leading-relaxed font-normal">
+              Prunes excessive defensive checks for impossible states, superfluous wrapper factories, and redundant intermediate variables hallucinated by LLMs.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-slate-400">
+            <span>Anti-Overengineering</span>
+            <span class="text-rose-400 font-semibold">Minimalist</span>
+          </div>
+        </div>
+
+        <!-- Card 5: Telemetry & Dashboard -->
+        <div class="glass-panel rounded-2xl p-7 hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between group shadow-xl">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-xl text-emerald-400 mb-6 group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-medium text-white tracking-tight">Telemetry &amp; Progress Scorecard</h3>
+            <p class="mt-3 text-sm text-slate-300 leading-relaxed font-normal">
+              Continuously syncs your accepted fixes, syntax resolutions, and bloat reductions to Neon PostgreSQL. Track your daily tokens and review history anytime.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-slate-400">
+            <span>Neon DB Persistence</span>
+            <span class="text-emerald-400 font-semibold">Daily Sync</span>
+          </div>
+        </div>
+
+        <!-- Card 6: Dual Browser Manifest V3 -->
+        <div class="glass-panel rounded-2xl p-7 hover:border-cyan-500/40 transition-all duration-300 flex flex-col justify-between group shadow-xl">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-xl text-cyan-400 mb-6 group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-medium text-white tracking-tight">Zero-Config Extension Controls</h3>
+            <p class="mt-3 text-sm text-slate-300 leading-relaxed font-normal">
+              Press <kbd class="px-2 py-0.5 rounded bg-white/10 border border-white/20 font-mono text-xs text-white">Ctrl + .</kbd> to activate real-time scanning. Press <kbd class="px-2 py-0.5 rounded bg-white/10 border border-white/20 font-mono text-xs text-white">Ctrl + Backspace</kbd> to stop. Manifest V3 compatible.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-slate-400">
+            <span>Chrome &amp; Edge</span>
+            <span class="text-cyan-400 font-semibold">Unpacked .zip</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================= PRODUCT SHOWCASE SECTION (DUAL VIEW: IN-EDITOR + DASHBOARD) ================= -->
+    <section id="showcase" class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-20 md:py-28 relative z-20">
+      
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+        <div class="max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-mono font-medium text-emerald-300 mb-4">
+            Interactive Product Tour
+          </div>
+          <h2 class="text-3xl sm:text-4xl md:text-[44px] font-light tracking-tight text-white leading-tight">
+            See How Snipy Operates In Your Workflow
+          </h2>
+          <p class="mt-3 text-lg text-slate-300">
+            Switch between the in-editor HUD popover and the real developer telemetry dashboard.
+          </p>
+        </div>
+
+        <!-- Showcase Mode Switcher -->
+        <div class="flex items-center bg-white/5 p-1 rounded-2xl border border-white/15 shrink-0 backdrop-blur-md">
+          <button 
+            type="button" 
+            id="btn-showcase-editor" 
+            onclick="switchShowcaseView('editor')" 
+            class="px-5 py-2.5 rounded-xl text-sm font-medium transition-all bg-white text-[#07090e] shadow cursor-pointer font-semibold"
+          >
+            In-Editor HUD Tooltip
+          </button>
+          <button 
+            type="button" 
+            id="btn-showcase-dash" 
+            onclick="switchShowcaseView('dashboard')" 
+            class="px-5 py-2.5 rounded-xl text-sm font-medium transition-all text-white/70 hover:text-white cursor-pointer"
+          >
+            Developer Dashboard
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW 1: IN-EDITOR HUD TOOLTIP EXPERIENCE -->
+      <div id="showcase-view-editor" class="w-full transition-all duration-300">
+        
+        <div class="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl text-white">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <!-- Left: Description & Features of the HUD -->
+            <div class="lg:col-span-5 space-y-6">
+              <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs font-mono font-medium">
+                ● Live LeetCode / Colab HUD
+              </span>
+              <h3 class="text-2xl sm:text-3xl font-light tracking-tight text-white">
+                Intelligent In-Line Diagnostic Popovers
+              </h3>
+              <p class="text-slate-300 text-base leading-relaxed">
+                When you write code that contains subtle logical pitfalls, quadratic nested loops, or excessive AI boilerplate, Snipy connects an anchored popover directly to the line in question.
+              </p>
+              
+              <ul class="space-y-3.5 text-sm text-slate-300 font-normal">
+                <li class="flex items-start gap-3">
+                  <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</span>
+                  <span><strong>Accurate Diagnostic Rationale:</strong> Plain-English explanation of why the current pattern causes bottlenecks or errors.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</span>
+                  <span><strong>Standard Library Idiom:</strong> Provides clean, battle-tested Python replacements instead of verbose LLM code.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</span>
+                  <span><strong>One-Click In-Place Apply:</strong> Hit <span class="font-mono text-emerald-300">[✓ Accept]</span> to modify the editor document directly without copying.</span>
+                </li>
+              </ul>
+
+              <div class="pt-2">
+                <button type="button" onclick="handleDownloadClick(event)" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#07090e] font-semibold hover:bg-slate-100 transition-colors shadow text-sm cursor-pointer">
+                  <span>Try It In Chrome &amp; Edge</span>
+                  <span class="font-mono text-xs">→</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right: Interactive In-Editor Rendering (From Figma Node 8:301 & 8:202) -->
+            <div class="lg:col-span-7 bg-[#05070d]/90 rounded-2xl p-6 sm:p-8 border border-white/15 relative">
+              
+              <div class="flex items-center justify-between pb-4 mb-4 border-b border-white/10 font-mono text-xs text-slate-400">
+                <span>leetcode_solution.py</span>
+                <span class="text-emerald-400">Ctrl + . Active</span>
+              </div>
+
+              <!-- Interactive In-Editor Snippet -->
+              <div class="font-mono text-xs sm:text-sm leading-relaxed space-y-1.5 code-scroll overflow-x-auto pb-4">
+                <div class="text-slate-400"><span class="w-6 inline-block text-slate-600 select-none">1</span><span class="text-purple-400">def</span> <span class="text-blue-400">find_maximum</span>(my_list):</div>
+                <div id="showcase-code-line-2" class="text-slate-200 editor-line-highlight -mx-4 px-4 py-1">
+                  <span class="w-6 inline-block text-amber-500 font-bold select-none">2</span>    <span class="text-amber-300 font-bold">max_val = 0</span>  <span class="text-slate-500"># ⚠️ Defaulting to 0</span>
+                </div>
+                <div class="text-slate-400"><span class="w-6 inline-block text-slate-600 select-none">3</span>    <span class="text-purple-400">for</span> x <span class="text-purple-400">in</span> my_list:</div>
+                <div class="text-slate-400"><span class="w-6 inline-block text-slate-600 select-none">4</span>        <span class="text-purple-400">if</span> x &gt; max_val:</div>
+                <div class="text-slate-400"><span class="w-6 inline-block text-slate-600 select-none">5</span>            max_val = x</div>
+                <div class="text-slate-400"><span class="w-6 inline-block text-slate-600 select-none">6</span>    <span class="text-purple-400">return</span> max_val</div>
+              </div>
+
+              <!-- Connecting Lead Line & Real Popover Box (Figma Node 8:301) -->
+              <div class="mt-4 pt-2">
+                <div class="bg-[#0f172a] rounded-xl p-4 shadow-2xl border border-white/20 text-white">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    
+                    <div class="space-y-1.5">
+                      <div class="flex items-center gap-2">
+                        <span class="inline-block px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[11px] font-mono font-medium border border-rose-500/40">
+                          Logic Bug &bull; Negative List
+                        </span>
+                        <span class="text-xs text-slate-400 font-mono">Suggested Fix:</span>
+                      </div>
+                      
+                      <!-- Code Badge -->
+                      <div class="bg-black/60 rounded px-2.5 py-1 text-xs sm:text-sm font-mono font-bold text-emerald-300 border border-white/15 inline-block">
+                        max_val = my_list[0]
+                      </div>
+                      
+                      <p class="text-xs text-slate-300 leading-snug">
+                        Fails if list contains only negative numbers, incorrectly returning 0.
+                      </p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center gap-2 shrink-0">
+                      <button 
+                        type="button" 
+                        onclick="applyShowcaseFix()" 
+                        class="w-10 h-9 bg-emerald-500 text-black rounded-full flex items-center justify-center hover:bg-emerald-400 transition-colors shadow cursor-pointer font-bold"
+                        title="Accept Fix"
+                      >
+                        <img src="assets/check.svg" alt="✓" class="w-4 h-4 object-contain invert brightness-0" />
+                      </button>
+                      <button 
+                        type="button" 
+                        onclick="resetShowcaseFix()" 
+                        class="w-10 h-9 bg-white/10 text-slate-200 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
+                        title="Dismiss"
+                      >
+                        <img src="assets/cross.svg" alt="✕" class="w-3.5 h-3.5 object-contain" />
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- VIEW 2: DEVELOPER TELEMETRY DASHBOARD PREVIEW -->
+      <div id="showcase-view-dashboard" class="w-full hidden transition-all duration-300">
+        
+        <div class="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl text-white">
+          
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-white/10">
+            <div>
+              <span class="text-xs uppercase tracking-wider font-mono text-emerald-400">Live Telemetry &bull; dashboard.html</span>
+              <h3 class="text-2xl sm:text-3xl font-light tracking-tight mt-1">
+                Developer Scorecard &amp; Session History
+              </h3>
+              <p class="text-sm text-slate-400 mt-1">
+                Synced automatically with Neon PostgreSQL whenever you accept code suggestions.
+              </p>
+            </div>
+            <button 
+              type="button" 
+              onclick="handleDashboardClick(event)" 
+              class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white text-[#07090e] font-semibold hover:bg-slate-100 transition-colors shadow text-sm shrink-0 cursor-pointer"
+            >
+              <span>Launch Live Dashboard</span>
+              <span class="font-mono text-xs">↗</span>
+            </button>
+          </div>
+
+          <!-- Gauges & Token Progress Box (Matching Figma Node 24:162) -->
+          <div class="mt-8 border border-white/15 rounded-2xl p-6 sm:p-8 bg-black/40">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              
+              <!-- Left: Token Usage -->
+              <div class="lg:col-span-6 space-y-4">
+                <div class="flex items-baseline justify-between">
+                  <h4 class="text-xl sm:text-2xl font-light tracking-tight">Total Token Usage</h4>
+                  <span class="text-lg font-mono font-light text-emerald-400">0 / 10 Tokens</span>
+                </div>
+                <div class="w-full bg-white/15 h-2 rounded-full overflow-hidden">
+                  <div class="bg-emerald-400 h-full rounded-full transition-all" style="width: 10%;"></div>
+                </div>
+                <div class="flex items-center justify-between text-xs text-slate-400 font-mono">
+                  <span>Resets after 24hrs</span>
+                  <span>Active (~2.5 hrs active time)</span>
+                </div>
+              </div>
+
+              <!-- Right: 3 Circular Horseshoe Gauges (Mistakes, Syntax, Usage) -->
+              <div class="lg:col-span-6 flex flex-wrap sm:flex-nowrap items-center justify-center gap-6 sm:gap-8">
+                <!-- Gauge 1: Mistakes -->
+                <div class="flex flex-col items-center">
+                  <div class="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
+                    <svg class="w-full h-full" viewBox="0 0 124 124">
+                      <circle class="gauge-bg" cx="62" cy="62" r="45"></circle>
+                      <circle class="gauge-progress" cx="62" cy="62" r="45" style="stroke-dashoffset: 190; stroke: #f59e0b;"></circle>
+                    </svg>
+                    <span class="absolute font-light text-sm sm:text-base text-white">0%</span>
+                  </div>
+                  <span class="text-xs sm:text-sm text-slate-300 mt-2 font-light">Mistakes</span>
+                </div>
+
+                <!-- Gauge 2: Syntax -->
+                <div class="flex flex-col items-center">
+                  <div class="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
+                    <svg class="w-full h-full" viewBox="0 0 124 124">
+                      <circle class="gauge-bg" cx="62" cy="62" r="45"></circle>
+                      <circle class="gauge-progress" cx="62" cy="62" r="45" style="stroke-dashoffset: 190; stroke: #38bdf8;"></circle>
+                    </svg>
+                    <span class="absolute font-light text-sm sm:text-base text-white">0%</span>
+                  </div>
+                  <span class="text-xs sm:text-sm text-slate-300 mt-2 font-light">Syntax</span>
+                </div>
+
+                <!-- Gauge 3: Usage -->
+                <div class="flex flex-col items-center">
+                  <div class="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
+                    <svg class="w-full h-full" viewBox="0 0 124 124">
+                      <circle class="gauge-bg" cx="62" cy="62" r="45"></circle>
+                      <circle class="gauge-progress" cx="62" cy="62" r="45" style="stroke-dashoffset: 190; stroke: #10b981;"></circle>
+                    </svg>
+                    <span class="absolute font-light text-sm sm:text-base text-white">0%</span>
+                  </div>
+                  <span class="text-xs sm:text-sm text-slate-300 mt-2 font-light">Usage</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Scorecard Metric Cards (Designs.md Section 2.5) -->
+          <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
+              <span class="text-xs uppercase font-mono text-slate-400">Complexity Downgrades</span>
+              <div class="text-2xl font-bold text-white mt-1.5 font-mono">O(N²) ➔ O(N)</div>
+              <p class="text-xs text-emerald-400 mt-1">⚡ 84% algorithmic improvements</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
+              <span class="text-xs uppercase font-mono text-slate-400">Bloat Lines Trimmed</span>
+              <div class="text-2xl font-bold text-white mt-1.5 font-mono">1,420 lines</div>
+              <p class="text-xs text-emerald-400 mt-1">📉 Reduced code bloat across sessions</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
+              <span class="text-xs uppercase font-mono text-slate-400">Syntax Errors Fixed</span>
+              <div class="text-2xl font-bold text-white mt-1.5 font-mono">96 resolved</div>
+              <p class="text-xs text-cyan-400 mt-1">✓ Prevented runtime exceptions</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================= HOW IT WORKS SECTION ================= -->
+    <section id="how-it-works" class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-20 md:py-28 relative z-20">
+      
+      <div class="max-w-2xl mb-14 md:mb-18">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-mono font-medium text-emerald-300 mb-4">
+          Simple 3-Step Journey
+        </div>
+        <h2 class="text-3xl sm:text-4xl md:text-[44px] font-light tracking-tight text-white leading-tight">
+          How Snipy Works In Three Steps
+        </h2>
+        <p class="mt-3 text-lg text-slate-300">
+          From downloading the browser extension to receiving in-editor suggestions in seconds.
+        </p>
+      </div>
+
+      <!-- 3 Steps Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+        
+        <!-- Step 1 -->
+        <div class="glass-panel rounded-2xl p-8 shadow-xl relative flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-white text-[#07090e] flex items-center justify-center font-mono font-bold text-lg mb-6 shadow">
+              01
+            </div>
+            <h3 class="text-xl font-medium text-white tracking-tight">Sign In &amp; Download</h3>
+            <p class="mt-3 text-sm text-slate-300 leading-relaxed">
+              Sign in with your Google account to initialize your developer record in Neon DB. Your browser immediately receives the ready-to-use <code class="font-mono text-xs bg-white/10 px-1.5 py-0.5 rounded text-emerald-300">snipy-extension.zip</code> file.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-white/10 text-xs text-slate-400 font-mono">
+            Requires Google Sign-In &bull; Free
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="glass-panel rounded-2xl p-8 shadow-xl relative flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-white/20 border border-white/30 text-white flex items-center justify-center font-mono font-bold text-lg mb-6 shadow">
+              02
+            </div>
+            <h3 class="text-xl font-medium text-white tracking-tight">Code In Your Favorite IDE</h3>
+            <p class="mt-3 text-sm text-slate-300 leading-relaxed">
+              Open Google Colab, LeetCode, or JupyterLab. Press <kbd class="font-mono text-xs bg-white/10 px-1.5 py-0.5 rounded border border-white/20 text-emerald-400">Ctrl + .</kbd> to activate the sliding window. Snipy observes 100–120 lines around your cursor.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-white/10 text-xs text-slate-400 font-mono">
+            350ms Typing Debounce &bull; No Lag
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="glass-panel rounded-2xl p-8 shadow-xl relative flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-[#10b981] text-black flex items-center justify-center font-mono font-bold text-lg mb-6 shadow">
+              03
+            </div>
+            <h3 class="text-xl font-medium text-white tracking-tight">Accept Clean Replacements</h3>
+            <p class="mt-3 text-sm text-slate-300 leading-relaxed">
+              When overengineered quadratic loops or bloat are flagged, review the diagnostic and click <strong class="text-emerald-300">[✓ Accept]</strong> to replace with clean standard library idioms, automatically synced to your dashboard.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-white/10 text-xs text-slate-400 font-mono">
+            O(N²) ➔ O(N) &bull; Synced to Dashboard
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================= GET EXTENSION (5-STEP BROWSER INSTALLATION GUIDE) ================= -->
+    <section id="extension" class="relative w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 pt-16 md:pt-24 pb-28 md:pb-36 overflow-hidden z-20">
+      
+      <div class="glass-panel rounded-3xl p-8 sm:p-12 lg:p-16 relative">
+        
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-12 pb-8 border-b border-white/10">
+          <div>
+            <span class="text-xs uppercase tracking-wider font-mono font-semibold text-emerald-400">Installation Walkthrough</span>
+            <h2 class="text-3xl sm:text-4xl md:text-[44px] font-light leading-tight text-white tracking-tight mt-1">
+              Install In Chrome or Edge in 60 Seconds
+            </h2>
+            <p class="text-base text-slate-300 mt-2">
+              Follow these five simple steps to load the unpacked extension in developer mode.
+            </p>
+          </div>
+          
+          <button 
+            type="button" 
+            onclick="handleDownloadClick(event)" 
+            class="inline-flex items-center justify-center gap-2.5 bg-white text-[#07090e] hover:bg-slate-100 text-base font-semibold rounded-2xl px-8 py-4 transition-all hover:scale-[1.02] shadow-[0_0_35px_-5px_rgba(255,255,255,0.3)] cursor-pointer shrink-0 self-start lg:self-auto"
+          >
+            <svg class="w-5 h-5 text-[#07090e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>Download .zip Package</span>
+          </button>
+        </div>
+
+        <!-- 5-Step Vertical Flow (Preserving Figma 13:85 - 13:89 and Official Icons) -->
+        <div class="flex flex-col gap-8 max-w-[980px]">
+          
+          <!-- Step 1 (Figma 13:85) -->
+          <div class="flex items-start gap-5 sm:gap-7">
+            <div class="w-12 h-12 shrink-0 mt-0.5 flex items-center justify-center bg-white/10 rounded-xl border border-white/20 shadow-xs">
+              <img src="assets/step1.svg" alt="Step 1" class="w-10 h-10 object-contain invert brightness-0" />
+            </div>
+            <div>
+              <h4 class="text-lg font-medium text-white">1. Download &amp; Authenticate</h4>
+              <p class="mt-1 text-base text-slate-300 leading-relaxed font-normal">
+                Click &ldquo;Download .zip package&rdquo; and sign in with Google to register your developer account in Neon DB and download the Snipy extension archive (<code class="bg-white/10 px-2 py-0.5 rounded text-xs font-mono font-semibold text-emerald-300">snipy-extension.zip</code>).
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 2 (Figma 13:86) -->
+          <div class="flex items-start gap-5 sm:gap-7">
+            <div class="w-12 h-12 shrink-0 mt-0.5 flex items-center justify-center bg-white/10 rounded-xl border border-white/20 shadow-xs">
+              <img src="assets/step2.svg" alt="Step 2" class="w-10 h-10 object-contain invert brightness-0" />
+            </div>
+            <div>
+              <h4 class="text-lg font-medium text-white">2. Extract / Unzip Archive</h4>
+              <p class="mt-1 text-base text-slate-300 leading-relaxed font-normal">
+                Go to your Downloads folder, right-click the downloaded <code class="bg-white/10 px-2 py-0.5 rounded text-xs font-mono font-semibold text-emerald-300">snipy-extension.zip</code> file, and extract or unzip it into a folder on your computer.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 3 (Figma 13:87) -->
+          <div class="flex items-start gap-5 sm:gap-7">
+            <div class="w-12 h-12 shrink-0 mt-0.5 flex items-center justify-center bg-white/10 rounded-xl border border-white/20 shadow-xs">
+              <img src="assets/step3.svg" alt="Step 3" class="w-10 h-10 object-contain invert brightness-0" />
+            </div>
+            <div>
+              <h4 class="text-lg font-medium text-white">3. Open Extensions Management Page</h4>
+              <p class="mt-1 text-base text-slate-300 leading-relaxed font-normal">
+                In Google Chrome, navigate to <code class="bg-white/10 px-2 py-0.5 rounded text-xs font-mono font-semibold text-emerald-300">chrome://extensions/</code>, or in Microsoft Edge, navigate to <code class="bg-white/10 px-2 py-0.5 rounded text-xs font-mono font-semibold text-emerald-300">edge://extensions/</code> in your address bar and press Enter.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 4 (Figma 13:88) -->
+          <div class="flex items-start gap-5 sm:gap-7">
+            <div class="w-12 h-12 shrink-0 mt-0.5 flex items-center justify-center bg-white/10 rounded-xl border border-white/20 shadow-xs">
+              <img src="assets/step4.svg" alt="Step 4" class="w-10 h-10 object-contain invert brightness-0" />
+            </div>
+            <div>
+              <h4 class="text-lg font-medium text-white">4. Toggle Developer Mode</h4>
+              <p class="mt-1 text-base text-slate-300 leading-relaxed font-normal">
+                Turn on the <strong>Developer mode</strong> toggle switch in the top-right corner of the browser extensions manager page.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 5 (Figma 13:89) -->
+          <div class="flex items-start gap-5 sm:gap-7">
+            <div class="w-12 h-12 shrink-0 mt-0.5 flex items-center justify-center bg-white/10 rounded-xl border border-white/20 shadow-xs">
+              <img src="assets/step5.svg" alt="Step 5" class="w-10 h-10 object-contain invert brightness-0" />
+            </div>
+            <div>
+              <h4 class="text-lg font-medium text-white">5. Load Unpacked Folder</h4>
+              <p class="mt-1 text-base text-slate-300 leading-relaxed font-normal">
+                Click the <strong>&ldquo;Load unpacked&rdquo;</strong> button in the top-left area, select the folder where you extracted the Snipy extension files, and click Select Folder. You are ready to optimize!
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Watermark Brand Logo Background -->
+        <div class="absolute right-4 md:right-8 lg:right-12 -bottom-10 w-[300px] sm:w-[420px] md:w-[500px] pointer-events-none -z-0 opacity-5 select-none">
+          <img src="assets/logo-white.svg" alt="" class="w-full h-auto object-contain" />
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================= FINAL CALL-TO-ACTION (CLOSING HERO CARD) ================= -->
+    <section class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 pb-24 md:pb-32 relative z-20">
+      
+      <div class="bg-gradient-to-b from-[#0c101c] to-[#07090e] rounded-3xl p-8 sm:p-14 lg:p-20 text-white border border-white/15 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)] relative overflow-hidden">
+        
+        <!-- Subtle internal atmospheric gradient -->
+        <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-cyan-500/15 blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-3xl">
+          <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-mono font-medium text-emerald-300 mb-6 border border-white/15">
+            ⚡ Ready For A Cleaner Codebase
+          </span>
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-tight text-white">
+            Stop Over-Engineering Today.<br />
+            <span class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-emerald-300">
+              Ship Fast, Idiomatic Python.
+            </span>
+          </h2>
+          <p class="mt-5 text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+            Equip your active browser tabs with instant algorithmic complexity warnings, AI bloat removal, and synchronized telemetry tracking.
+          </p>
+
+          <div class="mt-8 sm:mt-10 flex flex-wrap items-center gap-4">
+            <button 
+              type="button" 
+              onclick="handleDownloadClick(event)" 
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white text-[#07090e] hover:bg-slate-100 text-base sm:text-lg font-semibold rounded-2xl px-8 h-[58px] transition-all hover:scale-[1.02] shadow-[0_0_35px_-5px_rgba(255,255,255,0.35)] cursor-pointer"
+            >
+              <svg class="w-5 h-5 text-[#07090e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span>Download Extension (.zip)</span>
+            </button>
+
+            <button 
+              type="button" 
+              onclick="handleDashboardClick(event)" 
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-white/20 hover:border-white/50 text-white bg-white/5 hover:bg-white/10 text-base sm:text-lg font-medium rounded-2xl px-7 h-[58px] transition-all hover:scale-[1.02] cursor-pointer backdrop-blur-md"
+            >
+              <span>Launch Developer Dashboard</span>
+              <span class="text-xs font-mono text-emerald-400">↗</span>
+            </button>
+          </div>
+
+          <div class="mt-6 flex flex-wrap items-center gap-4 text-xs font-mono text-slate-400">
+            <span>Free Google Sign-In</span>
+            <span>&bull;</span>
+            <span>No Credit Card Required</span>
+            <span>&bull;</span>
+            <span>Shortcut: Ctrl + .</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- ================= AUTH MODAL (Gating Extension Download & Dashboard) ================= -->
+  <div id="auth-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-md p-4" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+    <div class="bg-[#0c101c] rounded-3xl p-8 sm:p-10 max-w-md w-full shadow-2xl border border-white/15 relative text-center text-white">
+      <button 
+        type="button" 
+        onclick="closeAuthModal()" 
+        class="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors flex items-center justify-center text-xl font-light cursor-pointer"
+        aria-label="Close authentication modal"
+      >
+        &times;
+      </button>
+
+      <img src="assets/logo-white.svg" alt="Snipy" class="w-14 h-14 mx-auto mb-4 object-contain" />
+
+      <h3 id="auth-modal-title" class="text-2xl font-light text-white tracking-tight">Sign in with Google</h3>
+      <p class="mt-2 text-sm text-slate-400 leading-relaxed">
+        Sign in to download the Snipy Extension and unlock real-time O(N²) detection and your personal session history.
+      </p>
+
+      <button 
+        type="button" 
+        onclick="triggerGoogleSignIn(true)" 
+        class="mt-6 w-full py-3.5 px-4 bg-white hover:bg-gray-100 text-[#07090e] rounded-2xl flex items-center justify-center gap-3 text-sm font-semibold shadow transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+      >
+        <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Continue with Google</span>
+      </button>
+
+      <p class="mt-4 text-xs text-slate-500">
+        Free &bull; No credit card required &bull; Hackathon Edition
+      </p>
+    </div>
+  </div>
+
+  <!-- ================= TERMS & CONDITIONS MODAL ================= -->
+  <div id="terms-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-md p-4" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title">
+    <div class="bg-[#0c101c] rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-white/15 relative text-left text-white">
+      <button 
+        type="button" 
+        onclick="closeTermsModal()" 
+        class="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors flex items-center justify-center text-xl font-light cursor-pointer"
+        aria-label="Close Terms modal"
+      >
+        &times;
+      </button>
+
+      <h3 id="terms-modal-title" class="text-xl font-semibold text-white">Terms &amp; Conditions</h3>
+      <p class="text-xs text-slate-400 mt-0.5 font-mono">Snipy.ai &bull; Released under MIT License</p>
+      
+      <div class="mt-4 text-xs sm:text-sm text-slate-300 space-y-3 max-h-72 overflow-y-auto pr-2">
+        <p>
+          Snipy is an open-source anti-overengineering and code optimization assistant created for developers, competitive programmers, and students.
+        </p>
+        <p>
+          <strong>Data Privacy &amp; Sliding Window:</strong> Snipy only processes active code in a temporary 100–120 line sliding window to diagnose algorithmic complexity and syntax errors. We do not store or sell your proprietary source code.
+        </p>
+        <p>
+          <strong>Authentication:</strong> Google authentication is used solely to authenticate your developer profile and sync your telemetry scorecard with Neon PostgreSQL.
+        </p>
+        <p>
+          <strong>Warranty:</strong> The software is provided &ldquo;as is&rdquo;, without warranty of any kind, express or implied.
+        </p>
+      </div>
+
+      <div class="mt-6 text-right">
+        <button type="button" onclick="closeTermsModal()" class="px-5 py-2 rounded-xl bg-white text-[#07090e] font-semibold text-xs hover:bg-slate-100 transition-colors cursor-pointer">
+          Understood
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ================= FOOTER (PREMIUM DARK POLISHED) ================= -->
+  <footer class="w-full bg-[#05070d] text-white py-12 md:py-16 z-30 border-t border-white/10">
+    <div class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex flex-col gap-10">
+      
+      <!-- Top Row: Brand & Links -->
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 pb-8 border-b border-white/10">
+        
+        <!-- Brand Info -->
+        <div class="flex items-center gap-3.5">
+          <img src="assets/logo-white.svg" alt="Snipy Logo" class="w-9 h-9 object-contain" />
+          <div>
+            <span class="text-2xl font-medium tracking-tight text-white">Snipy</span>
+            <p class="text-xs text-slate-400">Anti-Overengineering &amp; Code Optimization Assistant</p>
+          </div>
+        </div>
+
+        <!-- Navigation Anchors -->
+        <nav class="flex flex-wrap items-center gap-6 sm:gap-8 text-sm font-normal text-slate-300" aria-label="Footer Navigation">
+          <a href="#home" class="hover:text-white transition-colors">Home</a>
+          <a href="#features" class="hover:text-white transition-colors">Features</a>
+          <a href="#showcase" class="hover:text-white transition-colors">Showcase</a>
+          <a href="#how-it-works" class="hover:text-white transition-colors">How It Works</a>
+          <a href="#extension" class="hover:text-white transition-colors">Extension</a>
+          <button type="button" onclick="handleDashboardClick(event)" class="hover:text-emerald-400 transition-colors cursor-pointer text-left">Dashboard ↗</button>
+        </nav>
+
+      </div>
+
+      <!-- Bottom Row: Copyright & Creator Attribution -->
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 text-sm text-slate-400">
+        
+        <!-- Copyright & Terms -->
+        <div class="flex flex-wrap items-center gap-4">
+          <div class="flex items-center gap-2">
+            <img src="assets/copyright.svg" alt="" class="w-4 h-4 object-contain invert brightness-0 opacity-75" />
+            <span class="font-light text-slate-300">All rights reserved &bull; 2026 Snipy.ai</span>
+          </div>
+          <span class="text-white/20">&bull;</span>
+          <button type="button" onclick="openTermsModal()" class="hover:text-white hover:underline transition-colors text-slate-300 cursor-pointer">
+            Terms &amp; Conditions
+          </button>
+        </div>
+
+        <!-- Social / Developer Contact Links (Figma 13:135 - Valid author links) -->
+        <div class="flex items-center gap-6 sm:gap-8 whitespace-nowrap">
+          
+          <!-- GitHub CSMU-CodeSync (Figma 13:136, 13:138) -->
+          <a href="https://github.com/CSMU-CodeSync" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 group text-slate-300 hover:text-white transition-colors">
+            <div class="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center shrink-0 bg-white/10 group-hover:bg-white/20 transition-colors p-1">
+              <img src="assets/github.png" alt="GitHub" class="w-full h-full object-contain" />
+            </div>
+            <span class="text-sm font-normal group-hover:underline">CSMU-CodeSync</span>
+          </a>
+
+          <!-- Gmail codesync0208@gmail.com (Figma 13:137, 13:139) -->
+          <a href="mailto:codesync0208@gmail.com" class="flex items-center gap-2.5 group text-slate-300 hover:text-white transition-colors">
+            <div class="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center shrink-0 bg-white/10 group-hover:bg-white/20 transition-colors p-1">
+              <img src="assets/gmail.png" alt="Gmail" class="w-full h-full object-contain" />
+            </div>
+            <span class="text-sm font-normal group-hover:underline">codesync0208@gmail.com</span>
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ================= 3D INTERACTIVE CANVAS CONTROLLER ================= -->
+  <script>
+    (function init3DBackground() {
+      const canvas = document.getElementById("bg-3d-canvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      let width = (canvas.width = window.innerWidth);
+      let height = (canvas.height = window.innerHeight);
+
+      // Mouse Parallax coordinates
+      let mouseX = width / 2;
+      let mouseY = height / 2;
+      let targetMouseX = width / 2;
+      let targetMouseY = height / 2;
+
+      window.addEventListener("mousemove", (e) => {
+        targetMouseX = e.clientX;
+        targetMouseY = e.clientY;
+      });
+
+      window.addEventListener("resize", () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
+
+      // Respect prefers-reduced-motion
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      // 3D Isometric Cube definition (vertices normalized -1 to +1)
+      const baseVertices = [
+        [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
+        [-1, -1,  1], [1, -1,  1], [1, 1,  1], [-1, 1,  1]
+      ];
+
+      const faces = [
+        [0, 1, 2, 3], // Front
+        [5, 4, 7, 6], // Back
+        [4, 5, 1, 0], // Top
+        [3, 2, 6, 7], // Bottom
+        [1, 5, 6, 2], // Right
+        [4, 0, 3, 7]  // Left
+      ];
+
+      // Cube instances distributed in zero-gravity space
+      const cubes = [
+        { x: width * 0.15, y: height * 0.25, z: 80,  size: 38, rx: 0.4, ry: 0.6, rz: 0.2, vx: 0.003, vy: 0.004, color: "emerald" },
+        { x: width * 0.88, y: height * 0.22, z: 120, size: 52, rx: 0.2, ry: 0.3, rz: 0.5, vx: 0.002, vy: 0.003, color: "cyan" },
+        { x: width * 0.82, y: height * 0.65, z: 40,  size: 42, rx: 0.6, ry: 0.2, rz: 0.1, vx: 0.004, vy: 0.002, color: "amber" },
+        { x: width * 0.08, y: height * 0.70, z: 100, size: 45, rx: 0.3, ry: 0.5, rz: 0.4, vx: 0.003, vy: 0.003, color: "cyan" },
+        { x: width * 0.45, y: height * 0.15, z: 200, size: 30, rx: 0.5, ry: 0.4, rz: 0.2, vx: 0.002, vy: 0.005, color: "emerald" },
+        { x: width * 0.60, y: height * 0.85, z: 160, size: 35, rx: 0.1, ry: 0.7, rz: 0.3, vx: 0.003, vy: 0.004, color: "amber" },
+        { x: width * 0.30, y: height * 0.90, z: 60,  size: 32, rx: 0.4, ry: 0.3, rz: 0.6, vx: 0.004, vy: 0.002, color: "emerald" },
+      ];
+
+      let tick = 0;
+
+      function render() {
+        tick += 0.01;
+        ctx.clearRect(0, 0, width, height);
+
+        // Smooth mouse easing
+        mouseX += (targetMouseX - mouseX) * 0.04;
+        mouseY += (targetMouseY - mouseY) * 0.04;
+
+        // 1. Render Fine Dot-Matrix Grid with Cursor Spotlight
+        const dotSpacing = 38;
+        const maxDist = 200;
+        const startX = (width % dotSpacing) / 2;
+        const startY = (height % dotSpacing) / 2;
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+        for (let x = startX; x < width; x += dotSpacing) {
+          for (let y = startY; y < height; y += dotSpacing) {
+            const dx = x - mouseX;
+            const dy = y - mouseY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < maxDist) {
+              const intensity = 1 - dist / maxDist;
+              ctx.beginPath();
+              ctx.arc(x, y, 1 + intensity * 1.6, 0, Math.PI * 2);
+              ctx.fillStyle = `rgba(16, 185, 129, ${0.15 + intensity * 0.55})`;
+              ctx.fill();
+            } else {
+              // Static background dot
+              ctx.beginPath();
+              ctx.arc(x, y, 0.9, 0, Math.PI * 2);
+              ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
+              ctx.fill();
+            }
+          }
+        }
+
+        // 2. Render 3D Floating Frosted Glass Cubes
+        cubes.forEach((cube, index) => {
+          if (!prefersReducedMotion) {
+            cube.rx += cube.vx;
+            cube.ry += cube.vy;
+            // Float oscillation
+            cube.currentY = cube.y + Math.sin(tick + index * 1.5) * 12;
+            cube.currentX = cube.x + Math.cos(tick * 0.7 + index) * 8;
+          } else {
+            cube.currentY = cube.y;
+            cube.currentX = cube.x;
+          }
+
+          // Mouse Parallax shift on cube position
+          const parallaxX = (mouseX - width / 2) * (cube.z / 1200);
+          const parallaxY = (mouseY - height / 2) * (cube.z / 1200);
+          const cx = cube.currentX + parallaxX;
+          const cy = cube.currentY + parallaxY;
+
+          // Rotation angles
+          const cosX = Math.cos(cube.rx), sinX = Math.sin(cube.rx);
+          const cosY = Math.cos(cube.ry), sinY = Math.sin(cube.ry);
+          const cosZ = Math.cos(cube.rz), sinZ = Math.sin(cube.rz);
+
+          // Project 8 vertices
+          const proj = baseVertices.map(([vx, vy, vz]) => {
+            const sx = vx * cube.size;
+            const sy = vy * cube.size;
+            const sz = vz * cube.size;
+
+            // Rotate Y
+            const x1 = sx * cosY - sz * sinY;
+            const z1 = sx * sinY + sz * cosY;
+            // Rotate X
+            const y2 = sy * cosX - z1 * sinX;
+            const z2 = sy * sinX + z1 * cosX;
+            // Rotate Z
+            const x3 = x1 * cosZ - y2 * sinZ;
+            const y3 = x1 * sinZ + y2 * cosZ;
+
+            return { x: cx + x3, y: cy + y3, z: z2 };
+          });
+
+          // Soft ground shadow beneath cube
+          ctx.beginPath();
+          ctx.ellipse(cx, cy + cube.size * 1.6, cube.size * 1.1, cube.size * 0.35, 0, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+          ctx.fill();
+
+          // Depth sort faces (Painter's algorithm)
+          const faceDepths = faces.map((indices, fIdx) => {
+            const avgZ = (proj[indices[0]].z + proj[indices[1]].z + proj[indices[2]].z + proj[indices[3]].z) / 4;
+            return { fIdx, indices, avgZ };
+          });
+          faceDepths.sort((a, b) => a.avgZ - b.avgZ);
+
+          // Colors based on cube type
+          let strokeColor = "rgba(16, 185, 129, 0.4)";
+          let fillColor = "rgba(16, 185, 129, 0.05)";
+          let highlightColor = "rgba(255, 255, 255, 0.12)";
+
+          if (cube.color === "cyan") {
+            strokeColor = "rgba(56, 189, 248, 0.45)";
+            fillColor = "rgba(56, 189, 248, 0.05)";
+          } else if (cube.color === "amber") {
+            strokeColor = "rgba(245, 158, 11, 0.4)";
+            fillColor = "rgba(245, 158, 11, 0.05)";
+          }
+
+          // Draw faces
+          faceDepths.forEach(({ indices, fIdx }) => {
+            ctx.beginPath();
+            ctx.moveTo(proj[indices[0]].x, proj[indices[0]].y);
+            ctx.lineTo(proj[indices[1]].x, proj[indices[1]].y);
+            ctx.lineTo(proj[indices[2]].x, proj[indices[2]].y);
+            ctx.lineTo(proj[indices[3]].x, proj[indices[3]].y);
+            ctx.closePath();
+
+            // Glass fill
+            ctx.fillStyle = fIdx === 2 ? highlightColor : fillColor;
+            ctx.fill();
+
+            // Glowing edge stroke
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+          });
+        });
+
+        requestAnimationFrame(render);
+      }
+
+      requestAnimationFrame(render);
+    })();
+  </script>
+
+  <!-- ================= FIREBASE AUTH & INTERACTION CONTROLLER ================= -->
+  <script>
+    const BACKEND_URL = "https://aws-2-u2md.onrender.com";
+
+    // User's Firebase Configuration (Preserved)
+    const firebaseConfig = {
+      apiKey: "AIzaSyACt0tc8GnhYDFabqBToPoUZHBRAt16SyM",
+      authDomain: "sniply-d4caf.firebaseapp.com",
+      projectId: "sniply-d4caf",
+      storageBucket: "sniply-d4caf.firebasestorage.app",
+      messagingSenderId: "952891871914",
+      appId: "1:952891871914:web:df108c3d334b1abb8236d3",
+      measurementId: "G-NY6CFKFCKV"
+    };
+
+    // Initialize Firebase (Preserved)
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+    let currentUser = null;
+    let pendingDownloadAfterAuth = false;
+    let pendingDashboardAfterAuth = false;
+
+    // Listen to Firebase Auth state (Preserved)
+    auth.onAuthStateChanged((user) => {
+      currentUser = user;
+      updateAuthUI(user);
+
+      if (user) {
+        // Sync user profile to Neon DB
+        syncUserWithNeon(user);
+
+        // If user was prompted to sign in when clicking download, trigger download now
+        if (pendingDownloadAfterAuth) {
+          pendingDownloadAfterAuth = false;
+          executeExtensionDownload();
+        }
+
+        // If user was prompted to sign in when clicking dashboard, launch dashboard now
+        if (pendingDashboardAfterAuth) {
+          pendingDashboardAfterAuth = false;
+          window.open("dashboard.html", "_blank");
+        }
+      }
+    });
+
+    function updateAuthUI(user) {
+      const loggedOutBox = document.getElementById("auth-logged-out");
+      const loggedInBox = document.getElementById("auth-logged-in");
+      const userAvatar = document.getElementById("user-avatar");
+      const userName = document.getElementById("user-name");
+
+      if (user) {
+        if (loggedOutBox) loggedOutBox.classList.add("hidden");
+        if (loggedInBox) {
+          loggedInBox.classList.remove("hidden");
+          loggedInBox.classList.add("flex");
+        }
+        if (userAvatar) userAvatar.src = user.photoURL || "assets/logo-white.svg";
+        if (userName) userName.textContent = user.displayName ? user.displayName.split(" ")[0] : (user.email ? user.email.split("@")[0] : "User");
+        
+        const userData = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL
+        };
+        localStorage.setItem("sniply_user", JSON.stringify(userData));
+        window.dispatchEvent(new CustomEvent("sniply_auth_changed", { detail: userData }));
+      } else {
+        if (loggedInBox) {
+          loggedInBox.classList.add("hidden");
+          loggedInBox.classList.remove("flex");
+        }
+        if (loggedOutBox) loggedOutBox.classList.remove("hidden");
+        localStorage.removeItem("sniply_user");
+        window.dispatchEvent(new CustomEvent("sniply_auth_changed", { detail: null }));
+      }
+    }
+
+    async function syncUserWithNeon(user) {
+      try {
+        await fetch(`${BACKEND_URL}/api/v1/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            firebase_uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL
+          })
+        });
+      } catch (err) {
+        console.warn("Neon DB sync notice:", err);
+      }
+    }
+
+    function triggerGoogleSignIn(autoDownload = false) {
+      if (autoDownload) pendingDownloadAfterAuth = true;
+      auth.signInWithPopup(googleProvider)
+        .then((result) => {
+          closeAuthModal();
+          showToast(`Welcome back, ${result.user.displayName || "Developer"}!`);
+        })
+        .catch((error) => {
+          console.error("Sign-in error:", error);
+          if (error.code !== "auth/popup-closed-by-user") {
+            showToast("Sign in failed. Please try again.");
+          }
+        });
+    }
+
+    function handleSignOut() {
+      auth.signOut().then(() => {
+        showToast("Signed out successfully.");
+      });
+    }
+
+    function openAuthModal() {
+      const modal = document.getElementById("auth-modal");
+      if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+    }
+
+    function closeAuthModal() {
+      const modal = document.getElementById("auth-modal");
+      if (modal) {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+    }
+
+    function openTermsModal() {
+      const modal = document.getElementById("terms-modal");
+      if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+    }
+
+    function closeTermsModal() {
+      const modal = document.getElementById("terms-modal");
+      if (modal) {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+    }
+
+    function toggleMobileMenu() {
+      const drawer = document.getElementById("mobile-nav-drawer");
+      const btn = document.getElementById("mobile-menu-btn");
+      const hamburger = document.getElementById("hamburger-icon");
+      const close = document.getElementById("close-icon");
+
+      if (!drawer) return;
+      const isExpanded = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", !isExpanded);
+
+      if (isExpanded) {
+        drawer.classList.add("hidden");
+        if (hamburger) hamburger.classList.remove("hidden");
+        if (close) close.classList.add("hidden");
+      } else {
+        drawer.classList.remove("hidden");
+        if (hamburger) hamburger.classList.add("hidden");
+        if (close) close.classList.remove("hidden");
+      }
+    }
+
+    function handleDashboardClick(event) {
+      if (event) event.preventDefault();
+
+      if (currentUser) {
+        window.open("dashboard.html", "_blank");
+      } else {
+        pendingDashboardAfterAuth = true;
+        openAuthModal();
+      }
+    }
+
+    function handleDownloadClick(event) {
+      if (event) event.preventDefault();
+
+      if (currentUser) {
+        executeExtensionDownload();
+      } else {
+        pendingDownloadAfterAuth = true;
+        openAuthModal();
+      }
+    }
+
+    function executeExtensionDownload() {
+      if (!currentUser) {
+        pendingDownloadAfterAuth = true;
+        openAuthModal();
+        return;
+      }
+      showToast("Downloading Snipy Extension (.zip) for Chrome & Edge...");
+      const link = document.createElement("a");
+      link.href = "snipy-extension.zip";
+      link.download = "snipy-extension.zip";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function showToast(message) {
+      const container = document.getElementById("toast-container");
+      if (!container) return;
+      const toast = document.createElement("div");
+      toast.className = "pointer-events-auto bg-[#0c101c] text-white px-5 py-3 rounded-2xl shadow-2xl text-sm font-medium flex items-center gap-3 transform transition-all duration-300 translate-y-4 opacity-0 border border-white/20";
+      toast.innerHTML = `<span class="text-emerald-400">⚡</span><span>${message}</span>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove("translate-y-4", "opacity-0");
+      });
+
+      setTimeout(() => {
+        toast.classList.add("translate-y-4", "opacity-0");
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // ================= INTERACTIVE HERO MOCKUP CONTROLLER =================
+    function setHeroEditorState(state) {
+      const bloatBlock = document.getElementById("hero-code-bloated");
+      const cleanBlock = document.getElementById("hero-code-clean");
+      const popover = document.getElementById("hero-editor-popover");
+      const tabBloat = document.getElementById("tab-code-bloat");
+      const tabClean = document.getElementById("tab-code-clean");
+
+      if (state === "clean") {
+        if (bloatBlock) bloatBlock.classList.add("hidden");
+        if (cleanBlock) cleanBlock.classList.remove("hidden");
+        if (popover) popover.classList.add("hidden");
+
+        if (tabBloat) {
+          tabBloat.classList.remove("text-amber-400", "bg-white/10");
+          tabBloat.classList.add("text-slate-400");
+        }
+        if (tabClean) {
+          tabClean.classList.add("text-emerald-400", "bg-white/10");
+          tabClean.classList.remove("text-slate-400");
+        }
+        showToast("Applied O(N) optimization: list(dict.fromkeys(arr))");
+      } else if (state === "bloated") {
+        if (cleanBlock) cleanBlock.classList.add("hidden");
+        if (bloatBlock) bloatBlock.classList.remove("hidden");
+        if (popover) popover.classList.remove("hidden");
+
+        if (tabClean) {
+          tabClean.classList.remove("text-emerald-400", "bg-white/10");
+          tabClean.classList.add("text-slate-400");
+        }
+        if (tabBloat) {
+          tabBloat.classList.add("text-amber-400", "bg-white/10");
+          tabBloat.classList.remove("text-slate-400");
+        }
+      } else if (state === "dismissed") {
+        if (popover) popover.classList.add("hidden");
+        showToast("Recommendation dismissed for current session.");
+      }
+    }
+
+    // ================= INTERACTIVE SHOWCASE CONTROLLER =================
+    function switchShowcaseView(view) {
+      const editorView = document.getElementById("showcase-view-editor");
+      const dashView = document.getElementById("showcase-view-dashboard");
+      const btnEditor = document.getElementById("btn-showcase-editor");
+      const btnDash = document.getElementById("btn-showcase-dash");
+
+      if (view === "editor") {
+        if (editorView) editorView.classList.remove("hidden");
+        if (dashView) dashView.classList.add("hidden");
+        if (btnEditor) {
+          btnEditor.classList.add("bg-white", "text-[#07090e]", "shadow", "font-semibold");
+          btnEditor.classList.remove("text-white/70");
+        }
+        if (btnDash) {
+          btnDash.classList.remove("bg-white", "text-[#07090e]", "shadow", "font-semibold");
+          btnDash.classList.add("text-white/70");
+        }
+      } else {
+        if (editorView) editorView.classList.add("hidden");
+        if (dashView) dashView.classList.remove("hidden");
+        if (btnDash) {
+          btnDash.classList.add("bg-white", "text-[#07090e]", "shadow", "font-semibold");
+          btnDash.classList.remove("text-white/70");
+        }
+        if (btnEditor) {
+          btnEditor.classList.remove("bg-white", "text-[#07090e]", "shadow", "font-semibold");
+          btnEditor.classList.add("text-white/70");
+        }
+      }
+    }
+
+    function applyShowcaseFix() {
+      const line = document.getElementById("showcase-code-line-2");
+      if (line) {
+        line.innerHTML = `<span class="w-6 inline-block text-emerald-400 font-bold select-none">2</span>    <span class="text-emerald-400 font-bold">max_val = my_list[0]</span>  <span class="text-emerald-500/80"># ✓ Corrected for negative lists</span>`;
+        line.classList.remove("editor-line-highlight");
+        line.classList.add("editor-line-diff-add");
+      }
+      showToast("Applied fix: max_val = my_list[0]");
+    }
+
+    function resetShowcaseFix() {
+      const line = document.getElementById("showcase-code-line-2");
+      if (line) {
+        line.innerHTML = `<span class="w-6 inline-block text-amber-500 font-bold select-none">2</span>    <span class="text-amber-300 font-bold">max_val = 0</span>  <span class="text-slate-500"># ⚠️ Defaulting to 0</span>`;
+        line.classList.remove("editor-line-diff-add");
+        line.classList.add("editor-line-highlight");
+      }
+      showToast("Reset code preview to original state.");
+    }
+  </script>
+
+</body>
+</html>

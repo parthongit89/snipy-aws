@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Snipy.ai — Developer Dashboard</title>
+
+  <!-- ================= GOOGLE SEO & METADATA ================= -->
+  <meta name="title" content="Snipy.ai — Developer Dashboard &amp; Anti-Overengineering Coach" />
+  <meta name="description" content="Official Snipy.ai Developer Dashboard. Monitor real-time token usage, mistakes, syntax, and customize your AI assistant preferences." />
+  <meta name="keywords" content="Snipy.ai, developer dashboard, code quality coach, anti overengineering, AWS Bedrock, Claude 3.5 Haiku, code refactoring, code telemetry" />
+  <meta name="author" content="Snipy.ai" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <link rel="canonical" href="https://aws2-frontend.vercel.app/dashboard.html" />
+
+  <!-- Open Graph / Twitter Cards -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://aws2-frontend.vercel.app/dashboard.html" />
+  <meta property="og:title" content="Snipy.ai — Developer Dashboard" />
+  <meta property="og:description" content="Monitor real-time token usage, mistakes, syntax, and customize your AI assistant preferences." />
+  <meta property="og:image" content="https://aws2-frontend.vercel.app/assets/logo-white.svg" />
+  <meta property="og:site_name" content="Snipy.ai" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Snipy.ai — Developer Dashboard" />
+  <meta name="twitter:description" content="Monitor real-time token usage, mistakes, syntax, and customize your AI assistant preferences." />
+  <meta name="twitter:image" content="https://aws2-frontend.vercel.app/assets/logo-white.svg" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/logo-white.svg" />
+  <link rel="apple-touch-icon" href="assets/logo-white.svg" />
+  <meta name="theme-color" content="#12130f" />
+
+  <!-- ================= GOOGLE SANS FONTS ================= -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@100..900&family=Google+Sans+Code:wght@300;400;500;600&family=Google+Sans:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Google Sans Flex"', '"Google Sans"', '"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            code: ['"Google Sans Code"', '"Roboto Mono"', 'monospace'],
+            mono: ['"Google Sans Code"', '"Roboto Mono"', 'monospace'],
+          },
+          colors: {
+            brandDark: '#12130f',
+            canvasDark: 'rgba(0, 0, 0, 0.78)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Google Aesthetic & Typography */
+    html, body {
+      background-color: rgba(0, 0, 0, 0.78);
+      color: #ffffff;
+      font-family: "Google Sans Flex", "Google Sans", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      min-height: 100vh;
+    }
+
+    /* Minimalist Google scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    /* Horseshoe Circular Arc Gauge Styling (Matching Figma 24:181 & 24:182) */
+    .gauge-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.15);
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 212 283;
+      transform: rotate(135deg);
+      transform-origin: 50% 50%;
+    }
+    .gauge-progress {
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 212 283;
+      stroke-dashoffset: 212;
+      transform: rotate(135deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dashoffset 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Nav tab styling */
+    .nav-tab-btn {
+      transition: all 0.2s ease-in-out;
+    }
+    .nav-tab-btn.active {
+      background-color: #12130f;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      opacity: 1;
+    }
+    .nav-tab-btn:not(.active) {
+      color: rgba(255, 255, 255, 0.65);
+      border: 1px solid transparent;
+    }
+    .nav-tab-btn:not(.active):hover {
+      color: #ffffff;
+      opacity: 0.9;
+    }
+  </style>
+
+  <!-- Firebase v10 Compat CDN -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+</head>
+<body class="bg-[rgba(0,0,0,0.78)] text-white min-h-screen flex flex-col selection:bg-white selection:text-black">
+
+  <!-- ================= MANDATORY AUTHENTICATION MODAL ================= -->
+  <div id="dashboard-auth-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+    <div class="bg-[#12130f] rounded-3xl p-8 sm:p-10 max-w-md w-full shadow-2xl border border-white/15 text-center relative text-white">
+      <img src="assets/cube-icon.png" onerror="this.src='assets/logo-white.svg'" alt="Snipy.ai" class="w-14 h-14 mx-auto mb-4 object-contain" />
+      <h3 class="text-2xl font-light text-white tracking-tight">Authentication Required</h3>
+      <p class="mt-2 text-sm text-white/60 leading-relaxed">
+        Please sign in with your Google account to unlock your personal Progress &amp; Usage, History, and AI Assistant preferences.
+      </p>
+
+      <button type="button" onclick="triggerDashboardGoogleSignIn()" class="mt-6 w-full py-3.5 px-4 bg-white hover:bg-gray-100 border border-transparent rounded-2xl flex items-center justify-center gap-3 text-sm font-semibold text-gray-900 shadow transition-all cursor-pointer">
+        <svg class="w-5 h-5" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Sign in with Google</span>
+      </button>
+
+      <a href="index.html" class="inline-block mt-4 text-xs text-white/50 hover:text-white underline">
+        &larr; Return to Landing Page
+      </a>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ================= TOP NAVBAR (Figma Nodes 24:84, 24:256, 24:344) ================= -->
+  <header class="w-full max-w-[1440px] mx-auto px-6 sm:px-12 pt-8 pb-4 flex flex-col md:flex-row items-center justify-between gap-6 shrink-0">
+    <!-- Brand Logo + Name (Left) -->
+    <a href="index.html" aria-label="Return to Snipy.ai Home" class="flex items-center gap-4 group">
+      <div class="w-12 h-12 flex items-center justify-center opacity-85 group-hover:opacity-100 transition-opacity">
+        <img src="assets/cube-icon.png" onerror="this.src='assets/logo-white.svg'" alt="Snipy.ai logo" class="w-11 h-11 object-contain" />
+      </div>
+      <span class="text-[34px] sm:text-[40px] font-normal leading-none opacity-85 tracking-tight text-white font-sans">
+        Snipy.ai
+      </span>
+    </a>
+
+    <!-- Floating Capsule Pill Navigation (Center) -->
+    <nav aria-label="Dashboard navigation tabs" class="flex items-center bg-[#12130f] border border-white/10 rounded-[30px] p-1.5 shadow-xl">
+      <button 
+        type="button" 
+        id="nav-btn-progress" 
+        onclick="switchDashboardTab('progress')" 
+        class="nav-tab-btn active px-5 sm:px-7 py-2.5 rounded-[30px] text-[18px] sm:text-[20px] font-light leading-normal cursor-pointer"
+      >
+        Progress &amp; usage
+      </button>
+
+      <button 
+        type="button" 
+        id="nav-btn-personalization" 
+        onclick="switchDashboardTab('personalization')" 
+        class="nav-tab-btn px-5 sm:px-7 py-2.5 rounded-[30px] text-[18px] sm:text-[20px] font-light leading-normal cursor-pointer"
+      >
+        Personalization
+      </button>
+
+      <button 
+        type="button" 
+        id="nav-btn-settings" 
+        onclick="switchDashboardTab('settings')" 
+        class="nav-tab-btn px-5 sm:px-7 py-2.5 rounded-[30px] text-[18px] sm:text-[20px] font-light leading-normal cursor-pointer"
+      >
+        Settings
+      </button>
+    </nav>
+
+    <!-- User Profile & Sign Out (Right) -->
+    <div id="user-chip" class="hidden items-center gap-3 bg-white/5 border border-white/10 rounded-full px-4 py-2 shrink-0">
+      <img id="user-avatar" src="assets/logo-white.svg" alt="User avatar" class="w-7 h-7 rounded-full object-cover border border-white/20" />
+      <div class="flex items-center gap-2">
+        <span id="user-name" class="text-sm font-light text-white truncate max-w-[120px]">Developer</span>
+        <button type="button" onclick="handleDashboardSignOut()" class="text-xs text-white/40 hover:text-rose-400 cursor-pointer transition-colors ml-1" title="Sign out">Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT AREA ================= -->
+  <main id="main-content" role="main" class="flex-1 w-full max-w-[1440px] mx-auto px-6 sm:px-12 py-8 flex flex-col justify-start">
+
+    <!-- ================= VIEW 1: PROGRESS & USAGE (Figma Node 24:84) ================= -->
+    <div id="view-progress" class="space-y-12 w-full">
+      
+      <!-- Welcome Headings (Figma Node 24:233) -->
+      <header class="pt-4">
+        <h1 class="text-[38px] sm:text-[46px] md:text-[55px] font-light text-white leading-tight tracking-tight">
+          Welcome <span id="welcome-user-name">John Doe</span>
+        </h1>
+        <p class="text-[18px] sm:text-[20px] font-normal text-white opacity-75 mt-2">
+          Time to drop some clean code.
+        </p>
+      </header>
+
+      <!-- Main Metric Box: Total token usage + 3 Circular Gauges (Figma Node 24:162) -->
+      <section class="w-full">
+        <div class="border border-white/55 rounded-[20px] p-8 md:p-10 bg-black/20 backdrop-blur-xs flex flex-col lg:flex-row items-center justify-between gap-10 relative transition-all">
+          
+          <!-- Left Side: Total Token Usage -->
+          <div class="flex-1 w-full max-w-[600px] flex flex-col justify-between">
+            <div class="flex items-baseline justify-between w-full">
+              <h2 class="text-[30px] sm:text-[36px] md:text-[40px] font-light text-white tracking-tight">
+                Total token usage
+              </h2>
+              <span id="token-ratio-display" class="text-[20px] font-light text-white font-mono ml-4 shrink-0">
+                0/10
+              </span>
+            </div>
+
+            <!-- Horizontal Progress Bar (Figma 24:155 & 24:160) -->
+            <div class="w-full bg-white/25 h-[7px] rounded-[20px] overflow-hidden mt-6">
+              <div id="main-token-progress" class="bg-white h-full rounded-[20px] transition-all duration-500" style="width: 0%;"></div>
+            </div>
+
+            <!-- Subtext & Active Status (Figma 24:157) -->
+            <div class="flex items-center justify-between mt-4">
+              <p class="text-[17px] sm:text-[20px] font-normal text-white opacity-25">
+                Resets after 24hrs
+              </p>
+              <span id="token-status-badge" class="text-xs font-mono text-white/50">
+                Active (~2.5 hrs available)
+              </span>
+            </div>
+          </div>
+
+          <!-- Right Side: 3 Circular Gauges (Figma Nodes 24:180, 24:197, 24:186) -->
+          <div class="flex flex-wrap sm:flex-nowrap items-center justify-center gap-6 sm:gap-10 shrink-0">
+            
+            <!-- Gauge 1: Mistakes (Figma 24:180) -->
+            <div class="flex flex-col items-center">
+              <div class="relative w-[124px] h-[124px] flex items-center justify-center">
+                <svg class="w-full h-full" viewBox="0 0 124 124">
+                  <circle class="gauge-bg" cx="62" cy="62" r="45"></circle>
+                  <circle id="gauge-mistakes" class="gauge-progress" cx="62" cy="62" r="45"></circle>
+                </svg>
+                <span id="text-mistakes" class="absolute font-light text-[20px] text-white">0 %</span>
+              </div>
+              <p class="text-[20px] font-light text-white mt-3 text-center">
+                Mistakes
+              </p>
+            </div>
+
+            <!-- Gauge 2: Syntax (Figma 24:197) -->
+            <div class="flex flex-col items-center">
+              <div class="relative w-[124px] h-[124px] flex items-center justify-center">
+                <svg class="w-full h-full" viewBox="0 0 124 124">
+                  <circle class="gauge-bg" cx="62" cy="62" r="45"></circle>
+                  <circle id="gauge-syntax" class="gauge-progress" cx="62" cy="62" r="45"></circle>
+                </svg>
+                <span id="text-syntax" class="absolute font-light text-[20px] text-white">0 %</span>
+              </div>
+              <p class="text-[20px] font-light text-white mt-3 text-center">
+                Syntax
+              </p>
+            </div>
+
+            <!-- Gauge 3: Usage (Figma 24:186) -->
+            <div class="flex flex-col items-center">
+              <div class="relative w-[124px] h-[124px] flex items-center justify-center">
+                <svg class="w-full h-full" viewBox="0 0 124 124">
+                  <circle class="gauge-bg" cx="62" cy="62" r="45"></circle>
+                  <circle id="gauge-usage" class="gauge-progress" cx="62" cy="62" r="45"></circle>
+                </svg>
+                <span id="text-usage" class="absolute font-light text-[20px] text-white">0 %</span>
+              </div>
+              <p class="text-[20px] font-light text-white mt-3 text-center">
+                Usage
+              </p>
+              <span id="quota-count" class="hidden">0</span>
+              <div id="rate-limit-badge" class="hidden mt-1 px-2 py-0.5 bg-rose-950/80 text-rose-300 border border-rose-800 rounded text-[10px] font-mono uppercase">
+                100% Limit
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Top-right corner frame icon (Figma 24:192) -->
+          <div class="absolute top-5 right-5 opacity-40 hover:opacity-100 transition-opacity cursor-pointer" onclick="fetchDashboardMetrics(false)" title="Refresh metrics">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- History Section (Figma Node 24:227) -->
+      <section class="pb-16 pt-4">
+        <div class="flex items-center justify-between mb-7">
+          <h2 class="text-[30px] sm:text-[35px] font-normal text-white opacity-75 tracking-tight">
+            History
+          </h2>
+
+          <div class="flex items-center gap-3">
+            <div id="search-box-wrapper" class="hidden items-center border border-white/20 rounded-full px-3 py-1 text-xs bg-white/5">
+              <input type="text" id="fixes-search-input" placeholder="Search fixes..." class="outline-none text-xs w-36 bg-transparent text-white placeholder:text-white/40" />
+            </div>
+            <button type="button" id="btn-toggle-search" title="Search history" class="p-1.5 rounded-full hover:bg-white/10 transition-colors cursor-pointer text-white/70 hover:text-white">
+              <img src="assets/find.svg" alt="Search" class="w-6 h-6 object-contain" />
+            </button>
+            <button type="button" id="btn-toggle-sort" title="Sort history" class="p-1.5 rounded-full hover:bg-white/10 transition-colors cursor-pointer text-white/70 hover:text-white">
+              <img src="assets/sort.svg" alt="Sort" class="w-6 h-6 object-contain" />
+            </button>
+            <button type="button" id="btn-clear-fixes" onclick="handleClearAllFixes()" title="Clear history" class="text-xs font-light text-white/60 hover:text-rose-400 border border-white/15 hover:border-rose-400/40 bg-white/5 px-3 py-1.5 rounded-full transition-colors cursor-pointer">
+              Clear History
+            </button>
+          </div>
+        </div>
+
+        <!-- History Cards List (Figma Node 24:196) -->
+        <div id="fixes-cards-container" class="flex flex-col gap-4">
+          <div class="border border-[#f5f5f5]/30 rounded-[30px] h-[67px] px-8 flex items-center justify-center text-sm text-white/50 font-mono bg-black/20">
+            Loading live fixes from Neon DB...
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ================= VIEW 2: PERSONALIZATION (Figma Node 24:256) ================= -->
+    <div id="view-personalization" class="hidden max-w-[905px] mx-auto w-full py-6 space-y-12">
+      
+      <!-- Block 1: Search preferred language (Figma Node 24:328) -->
+      <section class="space-y-6">
+        <h2 class="text-[22px] sm:text-[25px] font-light text-white leading-normal">
+          Search your preferred language to code  in editor’s
+        </h2>
+
+        <!-- Search Input Bar (Figma 24:317) -->
+        <div class="relative w-full">
+          <div class="w-full h-[58px] rounded-[25px] border border-white/55 px-7 flex items-center justify-between bg-black/20 focus-within:border-white transition-colors">
+            <input 
+              type="text" 
+              id="custom-lang-search-input" 
+              placeholder="Search for Python, C " 
+              class="w-full text-[18px] font-light text-white placeholder:text-white/55 outline-none bg-transparent"
+            />
+            <button type="button" id="btn-add-language" title="Add language" class="shrink-0 p-1 text-white/70 hover:text-white transition-colors cursor-pointer">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Autocomplete Dropdown -->
+          <div id="lang-autocomplete-dropdown" class="absolute top-[64px] left-0 right-0 bg-[#12130f] border border-white/20 rounded-2xl shadow-2xl z-30 hidden overflow-hidden">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Selected Language Pills (Figma 24:322) -->
+        <div id="selected-languages-container" class="flex flex-wrap gap-4 pt-2">
+          <div class="h-[62px] min-w-[178px] px-6 rounded-[25px] border border-white flex items-center justify-between gap-4 bg-black/20 backdrop-blur-xs shadow-sm transition-all">
+            <div class="flex items-center gap-3.5">
+              <div class="w-[28px] h-[28px] rounded-full bg-white/10 flex items-center justify-center p-1 shrink-0">
+                <img src="assets/python.png" alt="Python" class="w-[20px] h-[20px] object-contain" />
+              </div>
+              <span class="text-[20px] font-medium text-white tracking-tight">Python</span>
+            </div>
+            <button type="button" onclick="removeLanguage('Python')" title="Remove Python" class="text-white/40 hover:text-rose-400 text-2xl font-light cursor-pointer leading-none">
+              &times;
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Block 2: Set preferences to tailor AI assistant (Figma Node 24:343) -->
+      <section class="space-y-6 pt-4">
+        <h2 class="text-[22px] sm:text-[25px] font-light text-white leading-normal">
+          Set your preferences to tailor your AI assistant
+        </h2>
+
+        <!-- Preferences Textarea (Figma 24:332) -->
+        <div class="w-full">
+          <textarea 
+            id="custom-rules-textarea" 
+            placeholder="Drop your stack, goals, or custom coding rules..." 
+            class="w-full h-[149px] rounded-[20px] border border-white/45 p-6 text-[18px] font-light text-white placeholder:text-white/55 outline-none resize-none bg-black/20 focus:border-white transition-colors leading-relaxed"
+          ></textarea>
+        </div>
+
+        <!-- Action Buttons: Submit & Edit (Figma 24:334) -->
+        <div class="flex items-center gap-4 pt-2">
+          <!-- Submit Button (Figma 24:335) -->
+          <button 
+            type="button" 
+            id="btn-submit-preferences" 
+            onclick="handleSavePreferences()" 
+            class="w-[172px] h-[51px] rounded-[30px] bg-[#12130f] border border-white/30 hover:border-white text-white text-[20px] font-medium flex items-center justify-center cursor-pointer transition-all hover:scale-[1.02] shadow-md"
+          >
+            Submit
+          </button>
+
+          <!-- Edit Button (Figma 24:338) -->
+          <button 
+            type="button" 
+            id="btn-edit-preferences" 
+            onclick="handleEditPreferences()" 
+            class="w-[167px] h-[51px] rounded-[30px] bg-[#12130f]/55 hover:bg-[#12130f] border border-white/20 hover:border-white/50 text-white text-[20px] font-medium flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:scale-[1.02]"
+          >
+            <img src="assets/edit.svg" alt="" class="w-5 h-5 object-contain opacity-85" />
+            <span>Edit</span>
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ================= VIEW 3: SETTINGS (Figma Node 24:344) ================= -->
+    <div id="view-settings" class="hidden max-w-[905px] mx-auto w-full py-6 space-y-10">
+      
+      <!-- Block 1: Adjust AI assistant (Figma 24:379, 24:382) -->
+      <section class="space-y-4">
+        <h2 class="text-[22px] sm:text-[25px] font-normal text-white opacity-95 leading-normal">
+          Adjust AI assistant
+        </h2>
+
+        <!-- Dropdown Box (Figma 24:382) -->
+        <div class="relative w-full">
+          <select 
+            id="setting-ai-mode" 
+            class="w-full h-[45px] rounded-[5px] border border-white/85 bg-[#12130f] px-6 pr-12 text-[18px] font-light text-white outline-none cursor-pointer appearance-none shadow-sm"
+          >
+            <option value="anti-overengineering" class="bg-[#12130f] text-white">Default (anti-overengineering)</option>
+            <option value="complexity-downgrade" class="bg-[#12130f] text-white">Advanced (complexity-downgrade)</option>
+            <option value="ast-doctor" class="bg-[#12130f] text-white">Professional (ast-doctor)</option>
+            <option value="step-by-step" class="bg-[#12130f] text-white">Step-by-Step (beginner)</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-6 text-white/80">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- Block 2: Set context Window (Figma 24:393, 24:395) -->
+      <section class="flex items-center justify-between pt-2">
+        <div>
+          <h2 class="text-[22px] sm:text-[25px] font-normal text-white opacity-95 leading-normal">
+            Set context Window
+          </h2>
+          <p class="text-xs text-white/40 mt-0.5 font-mono">Sliding window range for code capture (Max 150 lines default)</p>
+        </div>
+
+        <!-- Context window input box -->
+        <div class="w-[90px] h-[45px] rounded-[5px] border border-white/85 bg-[#12130f] flex items-center justify-center shadow-sm">
+          <input 
+            type="number" 
+            id="setting-context-window" 
+            value="150" 
+            min="20" 
+            max="150" 
+            class="w-full text-center text-[18px] font-light text-white outline-none bg-transparent"
+          />
+        </div>
+      </section>
+
+      <!-- Block 3: General Preferences (Figma 24:387, 24:388) -->
+      <section class="space-y-6 pt-4">
+        <h2 class="text-[22px] sm:text-[25px] font-normal text-white opacity-95 leading-normal">
+          General Preferences
+        </h2>
+
+        <div class="flex flex-col gap-6 pl-2">
+          <!-- Toggle 1: Theme Preference (Figma 24:389) -->
+          <div class="flex items-center justify-between max-w-[860px]">
+            <div>
+              <div class="text-[18px] font-light text-white">Theme Preference</div>
+              <div class="text-xs text-white/40 mt-0.5">Dark Mode / Light Mode</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="pref-theme" class="sr-only peer" checked onchange="handleThemeToggle(this)">
+              <div class="w-12 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-white/40"></div>
+            </label>
+          </div>
+
+          <!-- Toggle 2: Auto-Suggestions (Figma 24:390) -->
+          <div class="flex items-center justify-between max-w-[860px]">
+            <div>
+              <div class="text-[18px] font-light text-white">Auto-Suggestions</div>
+              <div class="text-xs text-white/40 mt-0.5">Enable/Disable live line-by-line suggestions while typing.</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="pref-auto-suggestions" class="sr-only peer" onchange="handleAutoSuggestionsToggle(this)">
+              <div class="w-12 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-white/40"></div>
+            </label>
+          </div>
+
+          <!-- Toggle 3: Data & Privacy (Figma 24:391) -->
+          <div class="flex items-center justify-between max-w-[860px]">
+            <div>
+              <div class="text-[18px] font-light text-white">Data &amp; Privacy</div>
+              <div class="text-xs text-white/40 mt-0.5">Session history aur daily progress tracking</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="pref-data-privacy" class="sr-only peer" checked>
+              <div class="w-12 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-white/40"></div>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Save Button (Figma 24:397) -->
+      <div class="pt-4">
+        <button 
+          type="button" 
+          id="btn-save-settings" 
+          onclick="handleSaveSettings()" 
+          class="w-[150px] h-[51px] rounded-[30px] bg-[#12130f] border border-white/30 hover:border-white text-white text-[20px] font-medium flex items-center justify-center cursor-pointer transition-all hover:scale-[1.02] shadow-md"
+        >
+          Save
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ================= FOOTER (Figma Nodes 24:254, 24:311, 24:353) ================= -->
+  <footer class="w-full h-[48px] bg-black border-t border-[#f5f5f5]/25 flex items-center justify-center mt-auto shrink-0">
+    <p class="font-extralight text-[15px] text-white opacity-55 tracking-wide">
+      Snipy.ai can mistakes , double check it
+    </p>
+  </footer>
+
+  <!-- ================= CODE DETAILS MODAL (When clicking any Fix card) ================= -->
+  <div id="fix-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="bg-[#12130f] rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-white/15 relative max-h-[90vh] overflow-y-auto text-white">
+      <button type="button" onclick="closeFixDetailModal()" class="absolute top-5 right-5 text-white/50 hover:text-white transition-colors text-2xl font-light cursor-pointer">
+        &times;
+      </button>
+
+      <div class="flex items-center gap-3">
+        <span class="font-mono text-xl font-bold text-white/80">&lt;&gt;</span>
+        <span id="modal-complexity-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-white/10 text-white border border-white/20">
+          O(N²) → O(N)
+        </span>
+        <span id="modal-time" class="text-xs text-white/40">Just now</span>
+      </div>
+
+      <h3 id="modal-title" class="text-xl font-light text-white mt-3">
+        Code Optimization Detail
+      </h3>
+      <p id="modal-summary" class="text-sm text-white/70 mt-1 leading-relaxed">
+        Summary description
+      </p>
+
+      <!-- Code Diff View -->
+      <div class="mt-5 space-y-4 font-mono text-xs">
+        <div id="modal-line-changes-wrapper">
+          <span class="text-xs font-sans font-bold text-white/40 uppercase tracking-wide">Line-by-Line Changes (Bedrock):</span>
+          <div id="modal-line-changes" class="mt-1.5 space-y-1.5 font-mono text-xs max-h-48 overflow-y-auto pr-1"></div>
+        </div>
+
+        <div>
+          <span class="text-xs font-sans font-bold text-white/40 uppercase tracking-wide">Full Optimized Code:</span>
+          <pre id="modal-code" class="p-4 bg-black/60 text-gray-100 rounded-xl mt-1 overflow-x-auto select-all leading-relaxed font-mono text-xs border border-white/10"></pre>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="mt-6 flex items-center justify-end gap-3">
+        <button type="button" id="modal-btn-copy" class="px-4 py-2 border border-white/20 hover:border-white text-xs font-medium rounded-xl transition-colors cursor-pointer text-white">
+          📋 Copy Clean Code
+        </button>
+        <button type="button" id="modal-btn-apply" class="px-5 py-2 bg-white hover:bg-gray-100 text-black text-xs font-semibold rounded-xl shadow transition-colors cursor-pointer">
+          ✓ Apply to Active Editor
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= AUTO-SUGGESTION CONFIRMATION MODAL ================= -->
+  <div id="autosuggest-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="bg-[#12130f] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-white/15 text-center relative text-white">
+      <div class="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+        ⚡
+      </div>
+      <h3 class="text-xl font-light text-white">Enable Live Auto-Suggestions?</h3>
+      <p class="mt-2 text-sm text-white/70 leading-relaxed">
+        Live Auto-Suggestions analyze your code automatically in the background whenever you pause typing.
+      </p>
+      <div class="mt-4 p-3.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white/80 text-left font-mono leading-relaxed">
+        ⚠️ <strong>Notice:</strong> Your 10 daily tokens provide approximately <strong>2 to 2.5 hours</strong> of continuous live auto-suggestions. Tokens reset automatically each day at midnight.
+      </div>
+      <div class="mt-6 flex items-center justify-end gap-3">
+        <button type="button" onclick="cancelAutoSuggestionToggle()" class="px-4 py-2.5 rounded-xl border border-white/20 text-sm font-medium text-white/70 hover:bg-white/10 transition-colors cursor-pointer">
+          Cancel
+        </button>
+        <button type="button" onclick="confirmAutoSuggestionToggle()" class="px-5 py-2.5 rounded-xl bg-white text-black text-sm font-semibold shadow hover:bg-gray-100 transition-colors cursor-pointer">
+          Enable Auto-Suggestions
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

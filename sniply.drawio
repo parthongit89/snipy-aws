@@ -1,0 +1,158 @@
+<?xml version="1.0" ?>
+<mxfile host="app.diagrams.net" modified="2026-10-02T19:20:00.000Z" agent="Antigravity" version="24.7.17">
+  <diagram name="Sniply Clean Architecture" id="sniply-clean-architecture">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1250" math="0" shadow="1">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title_banner" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12130F;strokeColor=#2D3748;fontColor=#FFFFFF;fontStyle=1;fontSize=20;align=center;shadow=1;arcSize=10;" value="&lt;div style='font-size: 22px; font-weight: 700; letter-spacing: 0.5px;'&gt;⚡ SNIPLY: CLEAN ARCHITECTURE &amp;amp; SYSTEM DATAFLOW&lt;/div&gt;&lt;div style='font-size: 13px; font-weight: 400; opacity: 0.85; margin-top: 6px;'&gt;Anti-Overengineering &amp;amp; Real-Time Code Optimization Assistant | AWS Bedrock (Claude 3.5 Haiku) &amp;amp; Neon DB&lt;/div&gt;">
+          <mxGeometry x="40" y="20" width="1620" height="75" as="geometry"/>
+        </mxCell>
+        <mxCell id="tier1_lane" parent="1" vertex="1" style="swimlane;html=1;startSize=34;rounded=1;arcSize=6;shadow=1;fillColor=#F8FAFC;strokeColor=#64748B;strokeWidth=1.5;fontStyle=1;fontSize=13;fontColor=#0F172A;collapsible=0;align=left;spacingLeft=14;" value="TIER 1: WEB ONBOARDING &amp;amp; MULTI-BROWSER EXTENSION DISTRIBUTION">
+          <mxGeometry x="40" y="115" width="1620" height="155" as="geometry"/>
+        </mxCell>
+        <mxCell id="tier2_lane" parent="1" vertex="1" style="swimlane;html=1;startSize=34;rounded=1;arcSize=6;shadow=1;fillColor=#F0FDF4;strokeColor=#16A34A;strokeWidth=1.5;fontStyle=1;fontSize=13;fontColor=#14532D;collapsible=0;align=left;spacingLeft=14;" value="TIER 2: CLIENT ACTIVATION, EDITOR HOOKS &amp;amp; 100-120 LINE CONTEXT SLIDING WINDOW">
+          <mxGeometry x="40" y="290" width="1620" height="185" as="geometry"/>
+        </mxCell>
+        <mxCell id="tier3_lane" parent="1" vertex="1" style="swimlane;html=1;startSize=34;rounded=1;arcSize=6;shadow=1;fillColor=#FFFBEB;strokeColor=#D97706;strokeWidth=1.5;fontStyle=1;fontSize=13;fontColor=#78350F;collapsible=0;align=left;spacingLeft=14;" value="TIER 3: REAL-TIME IN-EDITOR CODE HIGHLIGHTING &amp;amp; INTERACTIVE AUTO-TOOLTIP OVERLAY">
+          <mxGeometry x="40" y="495" width="1620" height="185" as="geometry"/>
+        </mxCell>
+        <mxCell id="tier4_lane" parent="1" vertex="1" style="swimlane;html=1;startSize=34;rounded=1;arcSize=6;shadow=1;fillColor=#F5F3FF;strokeColor=#7C3AED;strokeWidth=1.5;fontStyle=1;fontSize=13;fontColor=#4C1D95;collapsible=0;align=left;spacingLeft=14;" value="TIER 4: FASTAPI GATEWAY, AST STATIC AUDIT &amp;amp; AWS BEDROCK (CLAUDE 3.5 HAIKU)">
+          <mxGeometry x="40" y="700" width="1620" height="195" as="geometry"/>
+        </mxCell>
+        <mxCell id="tier5_lane" parent="1" vertex="1" style="swimlane;html=1;startSize=34;rounded=1;arcSize=6;shadow=1;fillColor=#F0F9FF;strokeColor=#0284C7;strokeWidth=1.5;fontStyle=1;fontSize=13;fontColor=#0C4A6E;collapsible=0;align=left;spacingLeft=14;" value="TIER 5: NEON DB PERSISTENCE, CONTINUOUS USER ADAPTATION &amp;amp; LIVE DASHBOARD">
+          <mxGeometry x="40" y="915" width="1620" height="260" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_landing" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#FFFFFF;strokeColor=#94A3B8;strokeWidth=1.5;fontColor=#0F172A;align=center;arcSize=8;" value="&lt;b&gt;Landing Page (landing.html / index.html)&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #475569;'&gt;• Hosted on Vercel Edge Global CDN&lt;br/&gt;• Hero, Video Demo &amp;amp; Code Inspector Demo&lt;br/&gt;• Action CTA: &lt;b&gt;Get Extension&lt;/b&gt;&lt;/span&gt;">
+          <mxGeometry x="70" y="160" width="310" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_auth_gate" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#FAF5FF;strokeColor=#A855F7;strokeWidth=2;fontColor=#581C87;align=center;arcSize=8;" value="&lt;b&gt;Mandatory Google Auth Gate &amp;amp; Neon DB Registration&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #6B21A8;'&gt;• &lt;b&gt;Mandatory Google OAuth&lt;/b&gt; before download&lt;br/&gt;• Upserts user profile in Neon DB (sniply_users)&lt;br/&gt;• Enables 100% developer tracking &amp;amp; telemetry&lt;/span&gt;">
+          <mxGeometry x="440" y="160" width="370" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_download" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#EFF6FF;strokeColor=#3B82F6;strokeWidth=1.5;fontColor=#1E3A8A;align=center;arcSize=8;" value="&lt;b&gt;Extension ZIP Download (sniply-extension.zip)&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #1D4ED8;'&gt;• Unlocked exclusively post-registration&lt;br/&gt;• Auto-triggers download of .zip package&lt;br/&gt;• Manifest V3 pre-packaged for Chrome &amp;amp; Edge&lt;/span&gt;">
+          <mxGeometry x="870" y="160" width="370" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_browsers" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#FFFFFF;strokeColor=#94A3B8;strokeWidth=1.5;fontColor=#0F172A;align=center;arcSize=8;" value="&lt;b&gt;Target Browser Runtime Setup&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #334155;'&gt;• &lt;b&gt;Google Chrome&lt;/b&gt;: chrome://extensions/ (Dev Mode)&lt;br/&gt;• &lt;b&gt;Microsoft Edge&lt;/b&gt;: edge://extensions/ (Dev Mode)&lt;br/&gt;• Load Unpacked Folder / ZIP Installation&lt;/span&gt;">
+          <mxGeometry x="1300" y="160" width="330" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_shortcuts" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#DCFCE7;strokeColor=#16A34A;strokeWidth=2;fontColor=#14532D;align=center;arcSize=8;" value="&lt;b&gt;Extension Keyboard Controller&lt;/b&gt;&lt;br/&gt;&lt;div style='font-size: 12px; margin-top: 4px;'&gt;&lt;b style='color: #15803D;'&gt;[ Ctrl + . ]&lt;/b&gt; : Start / Activate Extension&lt;br/&gt;&lt;b style='color: #B91C1C;'&gt;[ Ctrl + Backspace ]&lt;/b&gt; : Stop / Deactivate&lt;/div&gt;&lt;span style='font-size: 10px; color: #166534;'&gt;Global keydown interceptor &amp;amp; status indicator&lt;/span&gt;">
+          <mxGeometry x="70" y="340" width="310" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_editors" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#FFFFFF;strokeColor=#16A34A;strokeWidth=1.5;fontColor=#0F172A;align=center;arcSize=8;" value="&lt;b&gt;Active Coding Environments (DOM Targets)&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #334155;'&gt;• &lt;b&gt;Monaco Editor&lt;/b&gt; (Google Colab, LeetCode, CodeChef)&lt;br/&gt;• &lt;b&gt;CodeMirror 5/6&lt;/b&gt; (JupyterLab, Classic Notebook, Replit)&lt;br/&gt;• &lt;b&gt;Ace Editor&lt;/b&gt; (Programiz, OnlineGDB, HackerRank)&lt;br/&gt;• Standard &lt;b&gt;&amp;lt;textarea&amp;gt;&lt;/b&gt; &amp;amp; editable elements&lt;/span&gt;">
+          <mxGeometry x="440" y="340" width="370" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_extractor" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#F0FDF4;strokeColor=#22C55E;strokeWidth=1.5;fontColor=#14532D;align=center;arcSize=8;" value="&lt;b&gt;Sliding Window Context Extractor&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #15803D;'&gt;• Captures &lt;b&gt;100–120 lines&lt;/b&gt; around active cursor&lt;br/&gt;• Symmetrical expansion to function/block boundaries&lt;br/&gt;• Debounced typing observer (350ms pause detection)&lt;br/&gt;• Language &amp;amp; runtime syntax auto-detection&lt;/span&gt;">
+          <mxGeometry x="870" y="340" width="370" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_worker" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#FFFFFF;strokeColor=#16A34A;strokeWidth=1.5;fontColor=#0F172A;align=center;arcSize=8;" value="&lt;b&gt;Background Service Worker (MV3)&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #334155;'&gt;• State management (ACTIVE / IDLE / OPTIMIZING)&lt;br/&gt;• Cross-tab message dispatcher &amp;amp; tab router&lt;br/&gt;• chrome.storage.local secure credentials vault&lt;br/&gt;• Coordinates background seeking on dashboard.html&lt;/span&gt;">
+          <mxGeometry x="1300" y="340" width="330" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_highlight" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#FEF3C7;strokeColor=#D97706;strokeWidth=2;fontColor=#78350F;align=center;arcSize=8;" value="&lt;b&gt;In-Editor Code Snippet Highlighter&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #92400E;'&gt;• Injects non-destructive overlay on exact DOM coordinates&lt;br/&gt;• Targets: Specific line, keyword, variable, or statement block&lt;br/&gt;• Visual amber/rose pulse highlight over bloated code&lt;/span&gt;">
+          <mxGeometry x="70" y="545" width="380" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_tooltip" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#FFFFFF;strokeColor=#D97706;strokeWidth=2;fontColor=#0F172A;align=center;arcSize=8;" value="&lt;b&gt;Interactive Auto-Sync Popover Tooltip&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #1E293B;'&gt;• Connected to offending code line via anchoring line&lt;br/&gt;• &lt;b&gt;Code Badge:&lt;/b&gt; Shows original vs proposed cleaner syntax&lt;br/&gt;• &lt;b&gt;Diagnostic Rationale:&lt;/b&gt; Syntax errors, intention &amp;amp; Big-O drop&lt;br/&gt;• Action Buttons: &lt;b&gt;[✓ Correct / Accept]&lt;/b&gt; &amp;amp; &lt;b&gt;[✕ Wrong / Reject]&lt;/b&gt;&lt;/span&gt;">
+          <mxGeometry x="510" y="545" width="450" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_accept_act" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#DCFCE7;strokeColor=#16A34A;strokeWidth=1.5;fontColor=#14532D;align=center;arcSize=8;" value="&lt;b&gt;[✓ Correct / Accept] Flow&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #15803D;'&gt;• Replaces code in-place in editor&lt;br/&gt;• Monaco / CM / Ace native API call&lt;br/&gt;• Emits ACCEPT event to Neon DB&lt;/span&gt;">
+          <mxGeometry x="1020" y="545" width="270" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_reject_act" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#FEE2E2;strokeColor=#DC2626;strokeWidth=1.5;fontColor=#7F1D1D;align=center;arcSize=8;" value="&lt;b&gt;[✕ Wrong / Reject] Flow&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #991B1B;'&gt;• Dismisses tooltip cleanly&lt;br/&gt;• Preserves user's original code&lt;br/&gt;• Emits REJECT event for AI tuning&lt;/span&gt;">
+          <mxGeometry x="1340" y="545" width="290" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_gateway" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#FFFFFF;strokeColor=#7C3AED;strokeWidth=1.5;fontColor=#0F172A;align=center;arcSize=8;" value="&lt;b&gt;FastAPI Optimization Gateway&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #475569;'&gt;• &lt;b&gt;Endpoints:&lt;/b&gt; /api/v1/optimize, /api/v1/sync, /api/v1/analytics&lt;br/&gt;• High concurrency ASGI runner with rate limiting&lt;br/&gt;• Token-efficient JSON stream formatter&lt;/span&gt;">
+          <mxGeometry x="70" y="755" width="340" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_ast" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#EDE9FE;strokeColor=#8B5CF6;strokeWidth=1.5;fontColor=#4C1D95;align=center;arcSize=8;" value="&lt;b&gt;Static AST &amp;amp; Intent Analyzer&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #5B21B6;'&gt;• Pre-parses code into AST (Tree-Sitter / Python ast)&lt;br/&gt;• Detects nested loop depths (O(N²) risk), unused vars&lt;br/&gt;• Syntax error &amp;amp; indentation mistake pre-check&lt;br/&gt;• &lt;b&gt;Ponytail Guardrails:&lt;/b&gt; YAGNI &amp;amp; standard library ladder&lt;/span&gt;">
+          <mxGeometry x="460" y="755" width="360" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_cache" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#FFFFFF;strokeColor=#8B5CF6;strokeWidth=1.5;fontColor=#0F172A;align=center;arcSize=8;" value="&lt;b&gt;Pattern &amp;amp; Rule Cache Layer&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #475569;'&gt;• Normalized AST structural hash lookup&lt;br/&gt;• Instant cache hit response (&lt;b&gt;&amp;lt; 50ms&lt;/b&gt;)&lt;br/&gt;• Bypasses LLM invocation for known anti-patterns&lt;/span&gt;">
+          <mxGeometry x="870" y="755" width="310" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_bedrock" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#4C1D95;strokeColor=#2E1065;strokeWidth=2;fontColor=#FFFFFF;align=center;arcSize=8;" value="&lt;b&gt;AWS Bedrock AI Inference Engine&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #E9D5FF;'&gt;• &lt;b&gt;Model:&lt;/b&gt; Claude 3.5 Haiku (anthropic.claude-3-5-haiku-20241022)&lt;br/&gt;• Temperature: 0.1 (Strict deterministic simplification)&lt;br/&gt;• Ultra-fast low latency (&amp;lt; 700ms), 100-120 line focus&lt;br/&gt;• Outputs Big-O, line-by-line diffs &amp;amp; tooltip JSON payload&lt;/span&gt;">
+          <mxGeometry x="1230" y="755" width="400" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_neondb" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#0284C7;strokeColor=#0369A1;strokeWidth=2;fontColor=#FFFFFF;align=center;arcSize=8;" value="&lt;b&gt;Neon PostgreSQL Cloud Database&lt;/b&gt;&lt;br/&gt;&lt;div style='font-size: 11px; color: #E0F2FE; text-align: left; padding: 4px 10px;'&gt;• &lt;b&gt;sniply_users:&lt;/b&gt; firebase_uid, email, display_name, last_active&lt;br/&gt;• &lt;b&gt;optimizations:&lt;/b&gt; code, complexity before/after, mistakes JSONB&lt;br/&gt;• &lt;b&gt;daily_metrics:&lt;/b&gt; metric_date, total_fixes, tokens_used, syntax_errors&lt;br/&gt;• &lt;b&gt;Security:&lt;/b&gt; Connection pooling, sslmode=require, least-privilege&lt;/div&gt;">
+          <mxGeometry x="70" y="970" width="390" height="175" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_autosync" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#FFFFFF;strokeColor=#0284C7;strokeWidth=1.5;fontColor=#0F172A;align=center;arcSize=8;" value="&lt;b&gt;Daily &amp;amp; Working Auto-Sync Pipeline&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #334155;'&gt;• Background batch synchronization per day / session&lt;br/&gt;• Records accepted vs rejected tooltip interactions&lt;br/&gt;• Aggregates code health metrics &amp;amp; lines reduced&lt;br/&gt;• Fallback offline queue in chrome.storage.local&lt;/span&gt;">
+          <mxGeometry x="510" y="970" width="340" height="175" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_adaptive" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=1.5;fontColor=#0C4A6E;align=center;arcSize=8;" value="&lt;b&gt;Continuous Learning &amp;amp; AI Improvement&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px; color: #0369A1;'&gt;• Ingests user acceptance history from Neon DB&lt;br/&gt;• Tailors Claude 3.5 Haiku prompts to user's style&lt;br/&gt;• Suppresses repeatedly rejected optimization types&lt;br/&gt;• Enhances accuracy based on coding experience&lt;/span&gt;">
+          <mxGeometry x="890" y="970" width="340" height="175" as="geometry"/>
+        </mxCell>
+        <mxCell id="n_dashboard" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#0F172A;strokeColor=#38BDF8;strokeWidth=2;fontColor=#FFFFFF;align=center;arcSize=8;" value="&lt;b&gt;Step-by-Step Progress Dashboard (dashboard.html)&lt;/b&gt;&lt;br/&gt;&lt;div style='font-size: 11px; color: #BAE6FD; text-align: left; padding: 4px 8px;'&gt;• &lt;b&gt;Live Telemetry:&lt;/b&gt; Total lines saved, Big-O downgrade score&lt;br/&gt;• &lt;b&gt;Daily Activity Heatmap:&lt;/b&gt; Fix count, syntax errors prevented&lt;br/&gt;• &lt;b&gt;Step-by-Step History:&lt;/b&gt; Complete chronological inspection log&lt;br/&gt;• &lt;b&gt;Continuous Sync:&lt;/b&gt; Automatically reflects real-time improvements&lt;/div&gt;">
+          <mxGeometry x="1270" y="970" width="360" height="175" as="geometry"/>
+        </mxCell>
+        <mxCell id="e1" parent="1" edge="1" source="n_landing" target="n_auth_gate" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3B82F6;strokeWidth=2;fontColor=#1E3A8A;fontSize=10;" value="Click 'Get Extension'">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" parent="1" edge="1" source="n_auth_gate" target="n_download" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3B82F6;strokeWidth=2;fontColor=#1E3A8A;fontSize=10;" value="Mandatory OAuth &amp; Register">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" parent="1" edge="1" source="n_download" target="n_browsers" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3B82F6;strokeWidth=2;fontColor=#1E3A8A;fontSize=10;" value="Extract &amp; Load Unpacked">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3b" parent="1" edge="1" source="n_auth_gate" target="n_neondb" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3B82F6;strokeWidth=2;fontColor=#1E3A8A;fontSize=10;" value="Upsert sniply_users">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" parent="1" edge="1" source="n_browsers" target="n_worker" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16A34A;strokeWidth=2;fontColor=#14532D;fontSize=10;" value="Installs on Chrome/Edge">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" parent="1" edge="1" source="n_shortcuts" target="n_editors" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16A34A;strokeWidth=2;fontColor=#14532D;fontSize=10;" value="Ctrl + . Activates Hook">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" parent="1" edge="1" source="n_editors" target="n_extractor" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16A34A;strokeWidth=2;fontColor=#14532D;fontSize=10;" value="Active cell / cursor focus">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" parent="1" edge="1" source="n_extractor" target="n_worker" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16A34A;strokeWidth=2;fontColor=#14532D;fontSize=10;" value="Extracted 100-120 lines">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" parent="1" edge="1" source="n_worker" target="n_gateway" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D97706;strokeWidth=2;fontColor=#78350F;fontSize=10;" value="Inspect payload">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" parent="1" edge="1" source="n_highlight" target="n_tooltip" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D97706;strokeWidth=2;fontColor=#78350F;fontSize=10;" value="Render highlight on code">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e10" parent="1" edge="1" source="n_tooltip" target="n_accept_act" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D97706;strokeWidth=2;fontColor=#78350F;fontSize=10;" value="Click Accept">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e11" parent="1" edge="1" source="n_tooltip" target="n_reject_act" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D97706;strokeWidth=2;fontColor=#78350F;fontSize=10;" value="Click Reject">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e12" parent="1" edge="1" source="n_accept_act" target="n_editors" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D97706;strokeWidth=2;fontColor=#78350F;fontSize=10;" value="In-place editor replacement">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e13" parent="1" edge="1" source="n_gateway" target="n_ast" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C3AED;strokeWidth=2;fontColor=#4C1D95;fontSize=10;" value="Parse AST &amp; loop depth">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e14" parent="1" edge="1" source="n_ast" target="n_cache" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C3AED;strokeWidth=2;fontColor=#4C1D95;fontSize=10;" value="Check cache">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e15" parent="1" edge="1" source="n_ast" target="n_bedrock" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C3AED;strokeWidth=2;fontColor=#4C1D95;fontSize=10;" value="Invoke Haiku (Temp 0.1)">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e16" parent="1" edge="1" source="n_bedrock" target="n_highlight" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C3AED;strokeWidth=2;fontColor=#4C1D95;fontSize=10;" value="Return structured diff &amp; tooltip">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e17" parent="1" edge="1" source="n_gateway" target="n_neondb" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2;fontColor=#0C4A6E;fontSize=10;" value="Log optimization &amp; metrics">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e18" parent="1" edge="1" source="n_autosync" target="n_neondb" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2;fontColor=#0C4A6E;fontSize=10;" value="Batch sync session telemetry">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e19" parent="1" edge="1" source="n_neondb" target="n_adaptive" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2;fontColor=#0C4A6E;fontSize=10;" value="Learn from user feedback">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e20" parent="1" edge="1" source="n_adaptive" target="n_bedrock" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2;fontColor=#0C4A6E;fontSize=10;" value="Inject learned user context">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e21" parent="1" edge="1" source="n_neondb" target="n_dashboard" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2;fontColor=#0C4A6E;fontSize=10;" value="Live queries &amp; stats">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e22" parent="1" edge="1" source="n_accept_act" target="n_autosync" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2;fontColor=#0C4A6E;fontSize=10;" value="Feedback events (accept/reject)">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
