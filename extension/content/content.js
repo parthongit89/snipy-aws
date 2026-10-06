@@ -1256,93 +1256,201 @@ function extractBadgeSignature(targetCode, data) {
  * Strictly prioritizes critical Syntax Errors & Indentation over generic variable hygiene,
  * ensuring users immediately see the exact issue on the active line.
  */
+/**
+ * Synthesizes a precise, human-satisfying diagnostic reason that matches EXACTLY
+ * what code transformation or fix is proposed.
+ */
 function extractAccurateDiagnosis(data) {
   if (!data) return "Code Review Ready";
 
-  // Priority 1: Syntax Errors (Crucial!)
+  // Helper for clean word-boundary truncation
+  function formatConciseReason(text, maxLen = 38) {
+    if (!text || typeof text !== "string") return "";
+    let clean = text.trim().replace(/^[\-\*\•\d\.\s]+/, "");
+    clean = clean.replace(/^(Replace|Replaced|Replacing|Use|Using|Add|Adding|Fix|Fixing|Eliminate|Eliminating)\s+/i, (m) => {
+      return m.charAt(0).toUpperCase() + m.slice(1);
+    });
+    clean = clean.replace(/\.+$/, "");
+    if (clean.length <= maxLen) return clean;
+    const truncated = clean.slice(0, maxLen);
+    const lastSpace = truncated.lastIndexOf(" ");
+    if (lastSpace > 18) {
+      return truncated.slice(0, lastSpace) + "…";
+    }
+    return truncated.slice(0, maxLen - 1) + "…";
+  }
+
+  // 1. Critical Syntax & Indentation Errors
   if (data.syntax_analysis && data.syntax_analysis.is_valid === false) {
     const details = data.syntax_analysis.details || "";
     if (/de\s+value\(\)/i.test(details) || /'de'/i.test(details) || /typo/i.test(details)) {
-      return "Syntax Error: 'de' ➔ 'def'";
+      return "Syntax: 'de' ➔ 'def'";
     }
     if (/missing\s*[:']/i.test(details) || /expected\s*[:']/i.test(details) || /colon/i.test(details)) {
-      return "Syntax Error: Missing ':'";
+      return "Syntax: Missing Colon ':'";
+    }
+    if (/unclosed|bracket|parenthesis|brace/i.test(details)) {
+      return "Syntax: Unclosed Bracket";
     }
     if (/indent/i.test(details)) {
-      return "Indentation Error";
+      return "Indentation Error (PEP 8)";
     }
     const lineMatch = details.match(/line\s+(\d+)/i);
     if (lineMatch) {
-      return `Syntax Error on line ${lineMatch[1]}`;
+      return `Syntax Error (Line ${lineMatch[1]})`;
     }
     const cleanDetails = details.replace(/^(SyntaxError:\s*|Error:\s*)/i, "").trim();
     if (cleanDetails.length > 0) {
-      return cleanDetails.length > 34 ? cleanDetails.slice(0, 31) + "..." : cleanDetails;
+      return formatConciseReason(`Syntax: ${cleanDetails}`, 36);
     }
     return "Syntax Error Detected";
   }
 
-  // Priority 2: Indentation Mismatches
   if (data.indentation_analysis && data.indentation_analysis.is_properly_indented === false) {
     return "Indentation Mismatch (PEP 8)";
   }
 
-  // Priority 3: Algorithmic Complexity Bottlenecks (O(N²) -> O(N))
+  // 2. Inspect the ACTUAL code change in full_optimized_code or line_changes
+  const optCode = (data.full_optimized_code || "").toLowerCase();
+  const summary = (data.summary || "").toLowerCase();
+  const firstChangeReason = (Array.isArray(data.line_changes) && data.line_changes.length > 0)
+    ? (data.line_changes.find(c => c.reason && c.reason.length > 5)?.reason || "")
+    : "";
+  const firstStepTitle = (Array.isArray(data.step_by_step_guide) && data.step_by_step_guide.length > 0)
+    ? (data.step_by_step_guide[0].title || "")
+    : "";
+
+  // 2A. Two Pointers optimization
+  if (/two\s*pointers?|two-pointer/i.test(summary) || /two\s*pointers?|two-pointer/i.test(firstChangeReason) || /two\s*pointers?/i.test(firstStepTitle) || (optCode.includes("left") && optCode.includes("right") && optCode.includes("while left < right"))) {
+    return "O(N²) ➔ O(N) Two Pointers";
+  }
+
+  // 2B. Binary Search optimization
+  if (/binary\s*search|bisect/i.test(summary) || /binary\s*search|bisect/i.test(firstChangeReason) || /bisect/i.test(optCode)) {
+    return "O(N) ➔ O(log N) Binary Search";
+  }
+
+  // 2C. Hash Map / Frequency Map / Two Sum Hash lookup
+  if (/two\s*sum|hash\s*map|hashmap/i.test(firstStepTitle) || /hash\s*map|hashmap/i.test(summary) || (optCode.includes("seen") && (optCode.includes("diff") || optCode.includes("target")))) {
+    return "O(N²) ➔ O(N) Hash Map Lookup";
+  }
+
+  // 2D. Hash Set for O(1) membership check
+  if (/set\(\)|hash\s*set|o\(1\)\s*lookup|membership/i.test(firstChangeReason) || /set\(\)|hash\s*set/i.test(summary) || (optCode.includes("set()") || optCode.includes("seen = set()"))) {
+    return "O(1) Hash Set Lookup";
+  }
+
+  // 2E. Deduplication via dict.fromkeys
+  if (optCode.includes("dict.fromkeys") || /fromkeys|unique/i.test(summary) || /fromkeys/i.test(firstChangeReason)) {
+    return "O(N) Deduplication (fromkeys)";
+  }
+
+  // 2F. Standard library built-ins (sum, len, min, max, any, all, Counter)
+  if (optCode.includes("counter(") || /counter/i.test(summary) || /counter/i.test(firstChangeReason)) {
+    return "Use collections.Counter";
+  }
+  if ((optCode.includes("sum(") && optCode.includes("len(")) || /average|avg_num/i.test(summary) || /sum\(\)\s*\/\s*len\(\)/i.test(firstChangeReason)) {
+    return "Built-in sum() / len() Speedup";
+  }
+  if (optCode.includes("sum(") && !(data.original_complexity || "").includes("O(N²)")) {
+    return "Use Built-in sum() Generator";
+  }
+  if (optCode.includes("max(") || optCode.includes("min(")) {
+    return "Use Built-in min() / max()";
+  }
+  if (optCode.includes("any(") || optCode.includes("all(")) {
+    return "Use Idiomatic any() / all()";
+  }
+  if (optCode.includes("enumerate(") || /enumerate/i.test(firstChangeReason) || /enumerate/i.test(summary)) {
+    return "Use enumerate() Over Indices";
+  }
+  if (optCode.includes("join(") || /join/i.test(firstChangeReason)) {
+    return "Use str.join() (Avoid O(N²))";
+  }
+
+  // 2G. List / Dict / Set Comprehensions
+  if (/list\s*comp/i.test(firstStepTitle) || /list\s*comp/i.test(firstChangeReason) || /list\s*comp/i.test(summary)) {
+    return "Use List Comprehension";
+  }
+  if (/dict\s*comp/i.test(firstStepTitle) || /dict\s*comp/i.test(firstChangeReason) || /dict\s*comp/i.test(summary)) {
+    return "Use Dict Comprehension";
+  }
+
+  // 2H. Generic O(N²) Loop Bottleneck
   const origComp = data.original_complexity || "";
-  if (origComp.includes("O(N²)") || origComp.includes("O(n^2)") || origComp.includes("quadratic")) {
-    return "O(N²) Loop ➔ O(N) Hash";
+  const newComp = data.optimized_complexity || "";
+  if ((origComp.includes("O(N²)") || origComp.includes("quadratic")) && (newComp.includes("O(N)") || newComp.includes("linear"))) {
+    if (optCode.includes("seen") || optCode.includes("{}")) {
+      return "O(N²) Loop ➔ O(N) Hash Map";
+    }
+    return "O(N²) Loop ➔ O(N) Linear Time";
   }
 
-  // Priority 4: Specific line change reason
-  if (data.line_changes && data.line_changes.length > 0) {
-    for (const ch of data.line_changes) {
-      if (ch.reason && ch.reason.length > 0) {
-        if (/syntax/i.test(ch.reason) || /typo/i.test(ch.reason)) {
-          return "Syntax Error: Fix Keyword";
-        }
-        if (/o\(n/i.test(ch.reason) || /quadratic/i.test(ch.reason) || /linear/i.test(ch.reason)) {
-          return "O(N²) Complexity Bottleneck";
-        }
-        if (/standard library|builtin|counter|sum|idiom/i.test(ch.reason)) {
-          return ch.reason.length > 34 ? ch.reason.slice(0, 31) + "..." : ch.reason;
-        }
-      }
+  // 3. Step Title from AI guide (often very specific and high-quality!)
+  if (firstStepTitle && firstStepTitle.length > 3 && !/step\s*1|review|syntax\s*&\s*structure/i.test(firstStepTitle)) {
+    const formatted = formatConciseReason(firstStepTitle, 36);
+    if (formatted) return formatted;
+  }
+
+  // 4. Line Change Reason (direct explanation of the exact code edit)
+  if (firstChangeReason && firstChangeReason.length > 5) {
+    const formatted = formatConciseReason(firstChangeReason, 36);
+    if (formatted) return formatted;
+  }
+
+  // 5. Simplification reason from analysis
+  if (data.simplification_analysis?.can_simplify && data.simplification_analysis?.why_simplifiable) {
+    const why = data.simplification_analysis.why_simplifiable;
+    if (!/cannot simplify|already (clean|optimal)/i.test(why)) {
+      const formatted = formatConciseReason(why, 36);
+      if (formatted) return formatted;
     }
   }
 
-  // Priority 5: Simplification Analysis
-  if (data.simplification_analysis && data.simplification_analysis.can_simplify) {
-    const why = data.simplification_analysis.why_simplifiable || "";
-    if (why && !why.toLowerCase().includes("cannot simplify")) {
-      return why.length > 34 ? why.slice(0, 31) + "..." : why;
-    }
+  // 6. Summary if meaningful
+  if (data.summary && !/code reviewed|already clean/i.test(data.summary)) {
+    const formatted = formatConciseReason(data.summary, 36);
+    if (formatted) return formatted;
   }
 
-  // Priority 6: Genuine Variable Hygiene (Never generic boilerplate)
+  // 7. Variable Hygiene (only when actually requested and no algorithmic/syntax fix exists)
   if (data.variable_analysis && data.variable_analysis.hygiene_rating !== "Clean") {
     const recs = data.variable_analysis.recommendations;
     if (recs && recs.length > 0) {
       const firstRec = recs[0];
       if (/name|snake_case|naming/i.test(firstRec)) {
-        return "Variable Naming Inconsistent";
+        return "Variable Naming (PEP 8)";
       }
-      if (!/de\b|typo/i.test(firstRec)) {
-        return firstRec.length > 34 ? firstRec.slice(0, 31) + "..." : firstRec;
-      }
+      return formatConciseReason(firstRec, 34);
     }
-    return "Variable Hygiene Review";
-  }
-
-  // Priority 7: Summary
-  if (data.summary) {
-    const s = data.summary.trim();
-    if (s.toLowerCase().includes("syntax")) {
-      return "Syntax Error Detected";
-    }
-    return s.length > 34 ? s.slice(0, 31) + "..." : s;
   }
 
   return "Optimization Available";
+}
+
+/**
+ * Extracts full, comprehensive diagnostic reason for tooltips and screen reader descriptions.
+ */
+function extractFullReason(data) {
+  if (!data) return "";
+  if (data.summary && !/already clean/i.test(data.summary)) {
+    return data.summary;
+  }
+  if (Array.isArray(data.step_by_step_guide) && data.step_by_step_guide.length > 0) {
+    const step = data.step_by_step_guide[0];
+    if (step.explanation) return `${step.title ? step.title + ': ' : ''}${step.explanation}`;
+  }
+  if (Array.isArray(data.line_changes) && data.line_changes.length > 0) {
+    const ch = data.line_changes.find(c => c.reason && c.reason.length > 5);
+    if (ch && ch.reason) return ch.reason;
+  }
+  if (data.simplification_analysis?.why_simplifiable) {
+    return data.simplification_analysis.why_simplifiable;
+  }
+  if (data.syntax_analysis?.details) {
+    return data.syntax_analysis.details;
+  }
+  return "";
 }
 
 /**
@@ -1678,6 +1786,7 @@ function showInEditorTooltip(context, data) {
   // Accurately extract function signature and diagnostic issue text
   const badgeCode = extractBadgeSignature(context?.targetCode, data);
   const diagnosis = extractAccurateDiagnosis(data);
+  const fullReason = extractFullReason(data) || diagnosis;
 
   // 1. Detect exact lines where code changes happen
   const changedLineIndices = detectChangedLines(context?.targetCode, data);
@@ -1710,6 +1819,7 @@ function showInEditorTooltip(context, data) {
     sniply_active_suggestion: {
       funcName: badgeCode,
       issueText: diagnosis,
+      fullReason: fullReason,
       payload: {
         optimizedCode: data.full_optimized_code
       },
@@ -1775,17 +1885,18 @@ function showInEditorTooltip(context, data) {
         flex-shrink: 0;
       ">${escapeHtml(badgeCode)}</span>
 
-      <!-- Diagnostic Label (e.g. O(N²) Loop ➔ O(N) Hash) -->
-      <span style="
+      <!-- Diagnostic Label with hover tooltip for full description -->
+      <span id="sniply-diagnostic-label" title="${escapeHtml(fullReason)}" style="
         font-family: -apple-system, BlinkMacSystemFont, 'Google Sans', 'Plus Jakarta Sans', Roboto, sans-serif;
         font-size: 14px;
-        font-weight: 400;
+        font-weight: 500;
         color: #ffffff;
         letter-spacing: -0.2px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 260px;
+        max-width: 320px;
+        cursor: default;
       ">${escapeHtml(diagnosis)}</span>
 
       <!-- 3 Action Buttons (✓ ✕ Cube) -->

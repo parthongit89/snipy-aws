@@ -348,7 +348,7 @@ function getOfflineDemoDiff(code) {
       step_by_step_guide: [
         {
           step: 1,
-          title: "Fix Function Definition Keyword",
+          title: "Fix Typo 'de' ➔ 'def'",
           explanation: "In Python, functions must be declared with 'def', not 'de'.",
           before_snippet: originalLine.trim(),
           after_snippet: fixedLine.trim()
@@ -356,7 +356,7 @@ function getOfflineDemoDiff(code) {
       ],
       original_complexity: "N/A",
       optimized_complexity: "N/A",
-      summary: `Corrected syntax error on line ${typoDefIndex + 1}: replaced invalid keyword with 'def'.`,
+      summary: `Fixed keyword typo 'de' to 'def' on line ${typoDefIndex + 1}.`,
       line_changes: [
         {
           type: "delete",
@@ -408,7 +408,7 @@ function getOfflineDemoDiff(code) {
       step_by_step_guide: [
         {
           step: 1,
-          title: "Add Missing Colon",
+          title: "Add Missing Colon ':'",
           explanation: "Compound statements in Python must end with a colon (:).",
           before_snippet: originalLine.trim(),
           after_snippet: fixedLine.trim()
@@ -416,7 +416,7 @@ function getOfflineDemoDiff(code) {
       ],
       original_complexity: "N/A",
       optimized_complexity: "N/A",
-      summary: `Added missing ':' on line ${missingColonIndex + 1}.`,
+      summary: `Added missing terminating colon ':' on line ${missingColonIndex + 1}.`,
       line_changes: [
         {
           type: "delete",
@@ -463,7 +463,7 @@ function getOfflineDemoDiff(code) {
       step_by_step_guide: [
         {
           step: 1,
-          title: "Use Standard Library Built-ins",
+          title: "Built-in sum() / len() Speedup",
           explanation: "Python's built-in sum() and len() execute in C speed and eliminate verbose accumulator variables.",
           before_snippet: "for x in nums: totalSum += x",
           after_snippet: `return sum(${paramName}) / len(${paramName})`
@@ -471,7 +471,7 @@ function getOfflineDemoDiff(code) {
       ],
       original_complexity: "O(N) Time, O(1) Space",
       optimized_complexity: "O(N) Time, O(1) Space",
-      summary: "Replaced manual loop accumulation with idiomatic sum() / len() and zero-check.",
+      summary: "Replaced manual loop accumulation with standard library sum() and len().",
       line_changes: [
         {
           type: "delete",
@@ -550,7 +550,7 @@ function getOfflineDemoDiff(code) {
       step_by_step_guide: [
         {
           step: 1,
-          title: "Eliminate Nested Loop",
+          title: "Eliminate Nested Loops with Hash Map",
           explanation: "Replacing O(N²) nested loops with a single-pass hash lookup eliminates LeetCode Time Limit Exceeded (TLE).",
           before_snippet: actualLoopSnippet.trim().split("\n").slice(0, 2).join("\n"),
           after_snippet: linearBody.trim().split("\n").slice(0, 3).join("\n")

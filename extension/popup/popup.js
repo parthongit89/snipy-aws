@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         viewSuggestion.style.display = "flex";
         capsuleFunc.textContent = info.funcName || "code.py";
         capsuleIssue.textContent = info.issueText || "Optimization Available";
+        capsuleIssue.title = info.fullReason || info.issueText || "";
         activePayload = info.payload || null;
         break;
 
