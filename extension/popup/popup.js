@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const apiKeyInput = document.getElementById("apiKey");
   const awsRegionSelect = document.getElementById("awsRegion");
   const modelIdSelect = document.getElementById("modelId");
+  const prefAutoSuggestionsCheckbox = document.getElementById("prefAutoSuggestions");
   const btnSaveSettings = document.getElementById("btn-save-settings");
 
   let currentState = "activate";
@@ -238,10 +239,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // 6. Load Saved Settings
-  chrome.storage.local.get(["apiKey", "awsRegion", "modelId"], (data) => {
+  chrome.storage.local.get(["apiKey", "awsRegion", "modelId", "pref_auto_suggestions"], (data) => {
     if (data.apiKey) apiKeyInput.value = data.apiKey;
     if (data.awsRegion) awsRegionSelect.value = data.awsRegion;
     if (data.modelId) modelIdSelect.value = data.modelId;
+    if (prefAutoSuggestionsCheckbox) {
+      prefAutoSuggestionsCheckbox.checked = Boolean(data.pref_auto_suggestions);
+    }
   });
 
   // 7. Save Settings
@@ -250,8 +254,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       const apiKey = apiKeyInput.value.trim();
       const awsRegion = awsRegionSelect.value;
       const modelId = modelIdSelect.value;
+      const pref_auto_suggestions = prefAutoSuggestionsCheckbox ? prefAutoSuggestionsCheckbox.checked : false;
 
-      chrome.storage.local.set({ apiKey, awsRegion, modelId }, () => {
+      chrome.storage.local.set({ apiKey, awsRegion, modelId, pref_auto_suggestions }, () => {
         btnSaveSettings.textContent = "Saved ✓";
         btnSaveSettings.style.background = "#10b981";
         setTimeout(() => {

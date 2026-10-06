@@ -23,8 +23,8 @@
   let activeHighlightOverlay = null;
   let currentStickState = "activate";
   let stickRevertTimeout = null;
-  let cachedMonacoBridgeCode = null;
-  let cachedMonacoBridgeLang = null;
+  let lastAutoAnalyzedCode = "";
+  let lastAutoAnalyzedTime = 0;
 
   // Safe Chrome API & Storage wrappers (prevents "Cannot read properties of undefined (reading 'local')" on extension reload or orphaned tabs)
   function isExtensionAlive() {
@@ -94,104 +94,7 @@
     } catch (_) {}
   }
 
-/**
- * Injects an in-page bridge to directly access Monaco editor models in the main world.
- * This resolves Monaco DOM virtualization on LeetCode where off-screen code lines are not in DOM.
- */
-function injectMonacoPageBridge() {
-  if (document.getElementById("sniply-monaco-bridge-script")) return;
-  try {
-    const script = document.createElement("script");
-    script.id = "sniply-monaco-bridge-script";
-    script.textContent = `
-      (function() {
-        function getBestMonacoModel() {
-          if (!window.monaco || !window.monaco.editor) return null;
-          const models = window.monaco.editor.getModels ? window.monaco.editor.getModels() : [];
-          if (!models || models.length === 0) return null;
-          let best = null;
-          let maxLen = -1;
-          for (const m of models) {
-            try {
-              const uri = m.uri ? m.uri.toString().toLowerCase() : "";
-              if (uri.includes("testcase") || uri.includes("input") || uri.includes("output")) continue;
-              const val = m.getValue();
-              if (val && val.length > maxLen) {
-                maxLen = val.length;
-                best = m;
-              }
-            } catch (e) {}
-          }
-          return best || models[0];
-        }
-
-        function broadcastCode() {
-          try {
-            const m = getBestMonacoModel();
-            if (m) {
-              const code = m.getValue();
-              const lang = m.getLanguageId ? m.getLanguageId() : (m.getModeId ? m.getModeId() : "");
-              window.dispatchEvent(new CustomEvent("sniply_monaco_bridge_update", {
-                detail: { code, language: lang }
-              }));
-            }
-          } catch (e) {}
-        }
-
-        window.addEventListener("sniply_request_monaco_code", broadcastCode);
-
-        window.addEventListener("sniply_set_monaco_code", (evt) => {
-          try {
-            if (!evt.detail || typeof evt.detail.code !== "string") return;
-            const newCode = evt.detail.code;
-            if (!window.monaco || !window.monaco.editor) return;
-            const editors = window.monaco.editor.getEditors ? window.monaco.editor.getEditors() : [];
-            let applied = false;
-            for (const ed of editors) {
-              try {
-                const domNode = ed.getDomNode ? ed.getDomNode() : null;
-                if (domNode) {
-                  if (domNode.closest('[data-track-load="testcase"]') || domNode.offsetHeight < 120) continue;
-                }
-                const model = ed.getModel ? ed.getModel() : null;
-                if (model) {
-                  model.setValue(newCode);
-                  applied = true;
-                  break;
-                }
-              } catch (e) {}
-            }
-            if (!applied) {
-              const m = getBestMonacoModel();
-              if (m) {
-                m.setValue(newCode);
-                applied = true;
-              }
-            }
-            broadcastCode();
-          } catch (e) {}
-        });
-
-        setInterval(broadcastCode, 2000);
-        broadcastCode();
-      })();
-    `;
-    (document.head || document.documentElement).appendChild(script);
-    script.remove();
-  } catch (err) {}
-
-  window.addEventListener("sniply_monaco_bridge_update", (evt) => {
-    if (evt.detail && typeof evt.detail.code === "string") {
-      cachedMonacoBridgeCode = evt.detail.code;
-      if (evt.detail.language) {
-        cachedMonacoBridgeLang = evt.detail.language;
-      }
-    }
-  });
-}
-
 function initContentScript() {
-  injectMonacoPageBridge();
   syncUserSessionFromPage();
   createFloatingTrigger();
   attachEditorListeners();
@@ -630,16 +533,15 @@ function attachEditorListeners() {
         dismissInEditorTooltip();
       }
 
-      // Live Auto-Suggestion: automatically runs when user writes code in the editor
+      // Live Auto-Suggestion: strictly opt-in (disabled by default) to prevent continuous interrupts
       safeStorageGet(["pref_auto_suggestions", "sniply_daily_tokens"], (data) => {
-        // Active by default unless explicitly disabled by user
-        if (data.pref_auto_suggestions !== false) {
+        if (data.pref_auto_suggestions === true) {
           if (autoSuggestDebounceTimer) clearTimeout(autoSuggestDebounceTimer);
           autoSuggestDebounceTimer = setTimeout(() => {
             if (isSniplyActive && currentStickState !== "scanning") {
               triggerOptimizationFlow({ isAutoSuggestion: true });
             }
-          }, 1500);
+          }, 4500);
         }
       });
     }
@@ -849,25 +751,6 @@ function extractContextWindow() {
                      window.location.pathname.toLowerCase().includes("dashboard.html");
   if (isExcluded) {
     return null;
-  }
-
-  // Monaco Bridge Check (LeetCode & other Monaco platforms where in-page bridge provides full model)
-  try {
-    window.dispatchEvent(new CustomEvent("sniply_request_monaco_code"));
-  } catch (e) {}
-
-  if (cachedMonacoBridgeCode && isMeaningfulPythonCode(cachedMonacoBridgeCode)) {
-    const isMonacoContext = window.location.hostname.includes("leetcode") ||
-                            Boolean(document.querySelector(".monaco-editor"));
-    if (isMonacoContext) {
-      const bridgeLines = cachedMonacoBridgeCode.split("\n");
-      return {
-        targetCode: bridgeLines.slice(0, 150).join("\n"),
-        contextLines: "",
-        language: (cachedMonacoBridgeLang && cachedMonacoBridgeLang.toLowerCase().includes("python")) ? "python" : detectLanguage(),
-        editorType: "monaco_bridge"
-      };
-    }
   }
 
   // 1. User manual text selection (highest priority, 100% accurate across all editors)
@@ -1127,12 +1010,6 @@ function detectLanguage() {
       if (txt.includes("c++") || txt.includes("cpp")) return "cpp";
       if (txt.includes("java") && !txt.includes("javascript")) return "java";
       if (txt.includes("javascript") || txt.includes("typescript")) return "javascript";
-    }
-    if (cachedMonacoBridgeLang) {
-      const clang = cachedMonacoBridgeLang.toLowerCase();
-      if (clang.includes("python")) return "python";
-      if (clang.includes("cpp") || clang.includes("c++")) return "cpp";
-      if (clang.includes("java")) return "java";
     }
     return "python";
   }
@@ -2039,17 +1916,34 @@ function triggerOptimizationFlow(options = {}) {
     return;
   }
 
-  // Smooth scanning state (Group 40.png with animated pulse)
-  setScreenStickState("scanning");
+  // Auto-suggestion guards:
+  if (isAuto) {
+    const now = Date.now();
+    // 1. Rate-limit auto-suggestions to at most once every 15 seconds
+    if (now - lastAutoAnalyzedTime < 15000) {
+      return;
+    }
+    // 2. Prevent re-analyzing the identical code snippet
+    if (context.targetCode.trim() === lastAutoAnalyzedCode.trim()) {
+      return;
+    }
+  }
+
+  // Smooth scanning state (only animate floating pill for manual triggers so typing isn't interrupted)
+  if (!isAuto) {
+    setScreenStickState("scanning");
+  }
 
   // Watchdog timeout to prevent endless scanning if network or background drops
   let flowFinished = false;
   const watchdogTimer = setTimeout(() => {
     if (!flowFinished) {
       flowFinished = true;
-      setScreenStickState("error");
-      const labelEl = floatingPill?.querySelector("#sniply-stick-label");
-      if (labelEl) labelEl.textContent = "Analysis timed out. Please retry.";
+      if (!isAuto) {
+        setScreenStickState("error");
+        const labelEl = floatingPill?.querySelector("#sniply-stick-label");
+        if (labelEl) labelEl.textContent = "Analysis timed out. Please retry.";
+      }
     }
   }, 12000);
 
@@ -2070,9 +1964,6 @@ function triggerOptimizationFlow(options = {}) {
     if (isAuto && tokenData.tokens_remaining <= 0) {
       flowFinished = true;
       clearTimeout(watchdogTimer);
-      setScreenStickState("activate");
-      const labelEl = floatingPill?.querySelector("#sniply-stick-label");
-      if (labelEl) labelEl.textContent = "Auto-suggestion tokens finished (Resets tomorrow)";
       return;
     }
 
@@ -2105,7 +1996,7 @@ function triggerOptimizationFlow(options = {}) {
 
         if (chrome.runtime?.lastError) {
           console.warn("Sniply runtime error:", chrome.runtime.lastError.message);
-          setScreenStickState("error");
+          if (!isAuto) setScreenStickState("error");
           return;
         }
 
@@ -2115,13 +2006,18 @@ function triggerOptimizationFlow(options = {}) {
             optimizationError: response.error,
             optimizationStatus: "RATE_LIMITED"
           });
-          setScreenStickState("error");
-          const labelEl = floatingPill?.querySelector("#sniply-stick-label");
-          if (labelEl) labelEl.textContent = "Claude 3.5 Haiku quota reached (100% used). Service paused.";
+          if (!isAuto) {
+            setScreenStickState("error");
+            const labelEl = floatingPill?.querySelector("#sniply-stick-label");
+            if (labelEl) labelEl.textContent = "Claude 3.5 Haiku quota reached (100% used). Service paused.";
+          }
           return;
         }
 
         if (response && response.success && response.data) {
+          lastAutoAnalyzedCode = context.targetCode;
+          lastAutoAnalyzedTime = Date.now();
+
           safeStorageSet({
             optimizationResult: response.data,
             optimizationStatus: "SUCCESS"
@@ -2151,7 +2047,9 @@ function triggerOptimizationFlow(options = {}) {
           const isValidSyntax = response.data.syntax_analysis?.is_valid !== false;
 
           if (!canSimplify && isValidSyntax) {
-            setScreenStickState("optimal", 4500);
+            if (!isAuto) {
+              setScreenStickState("optimal", 4500);
+            }
             return;
           }
 
@@ -2163,16 +2061,20 @@ function triggerOptimizationFlow(options = {}) {
             optimizationError: response?.error || "Optimization check complete",
             optimizationStatus: "ERROR"
           });
-          setScreenStickState("error");
+          if (!isAuto) {
+            setScreenStickState("error");
+          }
         }
       });
     } catch (err) {
       if (flowFinished) return;
       flowFinished = true;
       clearTimeout(watchdogTimer);
-      setScreenStickState("error");
-      const labelEl = floatingPill?.querySelector("#sniply-stick-label");
-      if (labelEl) labelEl.textContent = "Please refresh tab (Extension updated)";
+      if (!isAuto) {
+        setScreenStickState("error");
+        const labelEl = floatingPill?.querySelector("#sniply-stick-label");
+        if (labelEl) labelEl.textContent = "Please refresh tab (Extension updated)";
+      }
     }
   });
 }
@@ -2186,10 +2088,6 @@ function replaceActiveEditorCode(newCode) {
     clearEditorHighlights();
 
     // 1. Monaco Editor (Colab focused cell, LeetCode, CodeChef)
-    try {
-      window.dispatchEvent(new CustomEvent("sniply_set_monaco_code", { detail: { code: newCode } }));
-      cachedMonacoBridgeCode = newCode;
-    } catch (e) {}
 
     const activeColabCell = document.querySelector(".cell.focused") || document.activeElement?.closest(".cell");
     const mainMonaco = findMainMonacoEditor();
