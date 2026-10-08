@@ -416,6 +416,11 @@ def render_weekly_digest_email(user_name="Developer", stats=None):
     )
 
 # ==============================================================================
+# RESEND HTTP API CONFIGURATION (PORT 443 — CLOUD COMPATIBLE)
+# ==============================================================================
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+
+# ==============================================================================
 # ASYNC EMAIL SENDER (NON-BLOCKING)
 # ==============================================================================
 def _send_email_worker(to_email, subject, html_content):
@@ -423,6 +428,34 @@ def _send_email_worker(to_email, subject, html_content):
         logger.warning("Attempted to send email with empty recipient.")
         return
 
+    # 1. Primary Strategy: Resend HTTPS REST API (Port 443 — Never blocked by Render firewall)
+    if RESEND_API_KEY:
+        try:
+            import requests
+            res = requests.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {RESEND_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "from": "Snipy AI <onboarding@resend.dev>",
+                    "to": [to_email],
+                    "subject": subject,
+                    "html": html_content
+                },
+                timeout=12
+            )
+            if res.status_code in (200, 201):
+                data = res.json() or {}
+                logger.info(f"Successfully dispatched email via Resend API to {to_email} (ID: {data.get('id')})")
+                return
+            else:
+                logger.warning(f"Resend API returned status {res.status_code}: {res.text}. Trying SMTP fallback...")
+        except Exception as resend_err:
+            logger.warning(f"Resend HTTP delivery notice: {resend_err}. Trying SMTP fallback...")
+
+    # 2. Secondary Strategy: Direct SMTP Sockets (Fallback)
     if not SMTP_PASSWORD:
         logger.info(f"[DEV MODE / NO SMTP KEY] Email prepared for {to_email}: '{subject}'. Delivery skipped.")
         return
@@ -443,7 +476,7 @@ def _send_email_worker(to_email, subject, html_content):
         server.login(SMTP_USER, SMTP_PASSWORD)
         server.sendmail(SENDER_EMAIL, [to_email], msg.as_string())
         server.quit()
-        logger.info(f"Successfully dispatched email '{subject}' to {to_email}")
+        logger.info(f"Successfully dispatched email '{subject}' to {to_email} via SMTP")
     except Exception as e:
         logger.error(f"Failed to dispatch email to {to_email} via {SMTP_HOST}:{SMTP_PORT}: {e}")
 
