@@ -470,9 +470,13 @@ async function fetchDailyTokens() {
 }
 
 function updateTokenUI(data) {
-  const tokenCount = data.daily_tokens !== undefined ? data.daily_tokens : 10;
-  const maxTokens = data.max_daily_tokens || 10;
-  const remainingHours = data.remaining_hours || 2.5;
+  // Tokens used out of 10 (each token = 3 problems, max 30 problems)
+  const tokensUsed = data.tokens_used !== undefined ? data.tokens_used : (data.daily_tokens !== undefined ? data.daily_tokens : 0);
+  const maxTokens = data.max_tokens || data.max_daily_tokens || 10;
+  const problemsUsed = data.problems_used !== undefined ? data.problems_used : (tokensUsed * 3);
+  const maxProblems = data.max_problems || 30;
+  const isLocked = data.is_locked || (problemsUsed >= maxProblems) || (tokensUsed >= maxTokens);
+  const remainingHours = data.remaining_hours !== undefined ? data.remaining_hours : Math.max(0, ((maxTokens - tokensUsed) * 0.25)).toFixed(1);
 
   const ratioDisplayEl = document.getElementById("token-ratio-display");
   const displayEl = document.getElementById("token-count-display");
@@ -481,35 +485,48 @@ function updateTokenUI(data) {
   const badgeEl = document.getElementById("token-status-badge");
 
   if (ratioDisplayEl) {
-    ratioDisplayEl.textContent = `${tokenCount}/${maxTokens}`;
+    ratioDisplayEl.textContent = `${tokensUsed}/${maxTokens}`;
   }
   if (displayEl) {
-    displayEl.textContent = `${tokenCount} / ${maxTokens}`;
+    displayEl.textContent = `${tokensUsed} / ${maxTokens}`;
   }
 
-  const pct = Math.max(0, Math.min(100, (tokenCount / maxTokens) * 100));
+  const pct = Math.max(0, Math.min(100, (tokensUsed / maxTokens) * 100));
 
   if (mainProgressBar) {
     mainProgressBar.style.width = `${pct}%`;
+    if (isLocked) {
+      mainProgressBar.className = "bg-rose-500 h-full rounded-[20px] transition-all duration-500 shadow-[0_0_12px_rgba(244,63,94,0.6)]";
+    } else {
+      mainProgressBar.className = "bg-white h-full rounded-[20px] transition-all duration-500";
+    }
   }
   if (progressBar) {
     progressBar.style.width = `${pct}%`;
     progressBar.className = "h-full rounded-full transition-all duration-500 " + 
-      (pct > 20 ? "bg-white" : "bg-rose-500");
+      (isLocked ? "bg-rose-500" : (pct < 80 ? "bg-white" : "bg-amber-400"));
   }
 
   if (badgeEl) {
-    if (tokenCount > 0) {
-      badgeEl.textContent = `Active (~${remainingHours} hrs available)`;
-      badgeEl.className = "text-xs font-mono text-white/50";
+    if (isLocked) {
+      badgeEl.textContent = `Limit Reached (${problemsUsed}/${maxProblems} problems fixed) — Free tier exhausted`;
+      badgeEl.className = "text-xs font-mono text-rose-400 font-semibold";
     } else {
-      badgeEl.textContent = "Quota reached (Resets midnight)";
-      badgeEl.className = "text-xs font-mono text-rose-400";
+      const probsLeft = Math.max(0, maxProblems - problemsUsed);
+      badgeEl.textContent = `Active (${probsLeft} problems left / ~${remainingHours} hrs available)`;
+      badgeEl.className = "text-xs font-mono text-white/50";
     }
   }
 
-  // Also sync to storage for content script
-  storage.set({ daily_tokens: tokenCount });
+  // Also sync to storage for content script and popup
+  storage.set({
+    daily_tokens: Math.max(0, maxTokens - tokensUsed),
+    tokens_used: tokensUsed,
+    problems_used: problemsUsed,
+    max_problems: maxProblems,
+    is_locked: isLocked,
+    quota_exceeded: isLocked
+  });
 }
 
 // =========================================================================

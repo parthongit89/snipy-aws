@@ -106,10 +106,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         capsule.classList.add("capsule-error");
         revertTimeout = setTimeout(() => setPopupState("activate"), 2800);
         break;
+
+      case "locked":
+        viewStatus.style.display = "flex";
+        statusText.innerHTML = '<span style="color:#ef4444;font-weight:bold;margin-right:8px;font-size:14px;">🔒</span> Limit reached (30/30 fixed)';
+        capsule.classList.add("capsule-error");
+        // Remains locked — no auto revert
+        break;
     }
   }
 
-  // 1. On Popup Open: Check if there is an active pending suggestion from the current tab
+  // 1. Check if token quota is reached (10/10 tokens = 30 problems fixed)
+  try {
+    const quotaData = await chrome.storage.local.get(["is_locked", "quota_exceeded", "problems_used", "tokens_used"]);
+    if (quotaData.is_locked || quotaData.quota_exceeded || (quotaData.problems_used >= 30) || (quotaData.tokens_used >= 10)) {
+      setPopupState("locked");
+      return;
+    }
+  } catch (_) {}
+
+  // 2. On Popup Open: Check if there is an active pending suggestion from the current tab
   try {
     const data = await chrome.storage.local.get(["sniply_active_suggestion"]);
     if (data.sniply_active_suggestion && data.sniply_active_suggestion.funcName) {
@@ -121,10 +137,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   } catch (_) {}
 
-  // 2. Click on "Activate Snipy" View -> Triggers Scanning on Active Tab
+  // 3. Click on "Activate Snipy" View -> Triggers Scanning on Active Tab
   viewActivate.addEventListener("click", async (e) => {
     e.stopPropagation();
     try {
+      const quotaCheck = await chrome.storage.local.get(["is_locked", "quota_exceeded", "problems_used", "tokens_used"]);
+      if (quotaCheck.is_locked || quotaCheck.quota_exceeded || (quotaCheck.problems_used >= 30) || (quotaCheck.tokens_used >= 10)) {
+        setPopupState("locked");
+        return;
+      }
+
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (!tab || !tab.id) {
         setPopupState("no_editor");

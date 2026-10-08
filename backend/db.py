@@ -337,59 +337,87 @@ def get_user_preferences(firebase_uid):
 
 def get_and_sync_daily_tokens(firebase_uid):
     """
-    Syncs the 10 tokens per day system.
-    Resets to 10 tokens on a new calendar day.
+    Tracks and enforces the 10 tokens / 30 problems quota system.
+    Rule: 10 tokens total = 30 problems maximum (1 token = 3 problems).
+    When 30 problems / 10 tokens are used (10/10), the service is strictly locked.
     """
+    MAX_PROBLEMS = 30
+    MAX_TOKENS = 10
+
     if not firebase_uid:
-        return {"tokens_remaining": 10, "max_tokens": 10, "resets_today": False}
+        return {
+            "tokens_used": 0,
+            "daily_tokens": 0,
+            "tokens_remaining": MAX_TOKENS,
+            "max_tokens": MAX_TOKENS,
+            "max_daily_tokens": MAX_TOKENS,
+            "problems_used": 0,
+            "max_problems": MAX_PROBLEMS,
+            "problems_remaining": MAX_PROBLEMS,
+            "ratio_display": f"0/{MAX_TOKENS}",
+            "is_locked": False,
+            "quota_exceeded": False,
+            "remaining_hours": 2.5
+        }
 
-    sql_select = "SELECT daily_tokens, tokens_last_reset FROM sniply_users WHERE firebase_uid = %s;"
-    sql_reset = "UPDATE sniply_users SET daily_tokens = 10, tokens_last_reset = CURRENT_DATE WHERE firebase_uid = %s RETURNING daily_tokens;"
-
-    try:
-        with get_db_connection() as conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute(sql_select, (firebase_uid,))
-                row = cur.fetchone()
-                if not row:
-                    return {"tokens_remaining": 10, "max_tokens": 10, "resets_today": False}
-
-                last_reset = row.get("tokens_last_reset")
-                from datetime import date
-                today = date.today()
-
-                if not last_reset or str(last_reset) != str(today):
-                    cur.execute(sql_reset, (firebase_uid,))
-                    conn.commit()
-                    return {"tokens_remaining": 10, "max_tokens": 10, "resets_today": True}
-
-                return {"tokens_remaining": row.get("daily_tokens", 10), "max_tokens": 10, "resets_today": False}
-    except Exception as e:
-        logger.error(f"Error checking daily tokens: {e}")
-        return {"tokens_remaining": 10, "max_tokens": 10, "resets_today": False}
-
-def consume_daily_token(firebase_uid):
-    """Decrements 1 daily auto-suggestion token."""
-    if not firebase_uid:
-        return {"tokens_remaining": 9, "success": True}
-
-    sql = """
-    UPDATE sniply_users
-    SET daily_tokens = GREATEST(0, daily_tokens - 1)
-    WHERE firebase_uid = %s
-    RETURNING daily_tokens;
+    sql_count = "SELECT COUNT(*) FROM optimizations WHERE firebase_uid = %s;"
+    sql_sync_user = """
+    UPDATE sniply_users 
+    SET daily_tokens = %s, tokens_last_reset = CURRENT_DATE 
+    WHERE firebase_uid = %s;
     """
+
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute(sql, (firebase_uid,))
+                cur.execute(sql_count, (firebase_uid,))
                 row = cur.fetchone()
+                problems_count = row[0] if row else 0
+
+                tokens_used = min(MAX_TOKENS, problems_count // 3)
+                tokens_remaining = max(0, MAX_TOKENS - tokens_used)
+                problems_remaining = max(0, MAX_PROBLEMS - problems_count)
+                is_locked = (problems_count >= MAX_PROBLEMS) or (tokens_used >= MAX_TOKENS)
+
+                cur.execute(sql_sync_user, (tokens_remaining, firebase_uid))
             conn.commit()
-            tokens_left = (row.get("daily_tokens") if isinstance(row, dict) else row[0]) if row else 0
-            return {"tokens_remaining": tokens_left, "success": tokens_left >= 0}
+
+            return {
+                "tokens_used": tokens_used,
+                "daily_tokens": tokens_used,
+                "tokens_remaining": tokens_remaining,
+                "max_tokens": MAX_TOKENS,
+                "max_daily_tokens": MAX_TOKENS,
+                "problems_used": problems_count,
+                "max_problems": MAX_PROBLEMS,
+                "problems_remaining": problems_remaining,
+                "ratio_display": f"{tokens_used}/{MAX_TOKENS}",
+                "is_locked": is_locked,
+                "quota_exceeded": is_locked,
+                "remaining_hours": round(max(0.0, tokens_remaining * 0.25), 1)
+            }
     except Exception as e:
-        logger.error(f"Error consuming token: {e}")
-        return {"tokens_remaining": 0, "success": False}
+        logger.error(f"Error checking daily tokens: {e}")
+        return {
+            "tokens_used": 0,
+            "daily_tokens": 0,
+            "tokens_remaining": MAX_TOKENS,
+            "max_tokens": MAX_TOKENS,
+            "max_daily_tokens": MAX_TOKENS,
+            "problems_used": 0,
+            "max_problems": MAX_PROBLEMS,
+            "problems_remaining": MAX_PROBLEMS,
+            "ratio_display": f"0/{MAX_TOKENS}",
+            "is_locked": False,
+            "quota_exceeded": False,
+            "remaining_hours": 2.5
+        }
+
+def consume_daily_token(firebase_uid):
+    """Refreshes and syncs quota usage after optimization."""
+    if not firebase_uid:
+        return {"tokens_remaining": 9, "success": True, "is_locked": False}
+    return get_and_sync_daily_tokens(firebase_uid)
 
 def delete_optimization(opt_id, firebase_uid=None):
     """Deletes a single optimization entry strictly scoped to the authenticated user."""

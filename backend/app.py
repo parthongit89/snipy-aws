@@ -528,19 +528,26 @@ def optimize_code():
             "error": "No executable Python code detected. Please write Python code to analyze."
         }), 400
 
-    # Rate limit check: 100 reviews per user maximum (= 100% usage limit)
+    # Quota limit check: strictly 30 problems maximum (= 10/10 tokens used)
     if user_id and user_id != "guest":
         try:
-            stats = get_user_stats(firebase_uid=user_id)
-            if stats.get("is_rate_limited") or stats.get("total_fixes", 0) >= 100:
-                logger.warning(f"User {user_id} reached rate limit of 100 reviews (100% usage).")
+            token_info = get_and_sync_daily_tokens(user_id)
+            if token_info.get("is_locked") or token_info.get("problems_used", 0) >= 30 or token_info.get("tokens_used", 0) >= 10:
+                logger.warning(f"User {user_id} reached 10/10 token quota (30/30 problems used). Optimization service paused.")
                 return jsonify({
                     "success": False,
-                    "error": "Claude 3.5 Haiku Bedrock rate limit reached (100% / 100 reviews used). Review service paused for this account.",
-                    "rate_limited": True
+                    "error": "Quota limit reached (10/10 tokens / 30 problems used). Optimization service paused. Payment integration coming soon.",
+                    "rate_limited": True,
+                    "quota_exceeded": True,
+                    "is_locked": True,
+                    "problems_used": token_info.get("problems_used", 30),
+                    "max_problems": 30,
+                    "tokens_used": 10,
+                    "max_tokens": 10,
+                    "ratio_display": "10/10"
                 }), 429
         except Exception as e:
-            logger.warning(f"Rate limit check notice: {e}")
+            logger.warning(f"Quota limit check notice: {e}")
 
     # Deterministic syntax and indentation verification via standard library AST
     ast_check = inspect_python_syntax_and_indentation(code)
@@ -696,6 +703,8 @@ def _persist_optimization_session(user_id, editor_url, language, original_code, 
             full_optimized_code=new_code,
             line_changes=opt_res.get("line_changes", [])
         )
+        if user_id and user_id != "guest":
+            consume_daily_token(user_id)
     except Exception as err:
         logger.warning(f"Could not persist optimization session to Neon DB: {err}")
 

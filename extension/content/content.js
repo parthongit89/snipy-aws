@@ -1949,9 +1949,21 @@ function triggerOptimizationFlow(options = {}) {
 
   safeStorageGet([
     "sniply_user", "ai_mode", "custom_preferences", "preferred_languages",
-    "context_window", "sniply_daily_tokens"
+    "context_window", "sniply_daily_tokens", "is_locked", "quota_exceeded", "problems_used", "tokens_used"
   ], (storedData) => {
     const user = storedData.sniply_user || {};
+
+    // Strict Quota Check: 10 tokens / 30 problems maximum
+    if (storedData.is_locked || storedData.quota_exceeded || (storedData.problems_used >= 30) || (storedData.tokens_used >= 10)) {
+      flowFinished = true;
+      clearTimeout(watchdogTimer);
+      if (!isAuto) {
+        setScreenStickState("error");
+        const labelEl = floatingPill?.querySelector("#sniply-stick-label");
+        if (labelEl) labelEl.textContent = "Limit reached (30/30 fixed). Service paused.";
+      }
+      return;
+    }
 
     // Auto-suggestion token check: 10 tokens per day (~2.5h session limit)
     let tokenData = storedData.sniply_daily_tokens;
@@ -2000,16 +2012,20 @@ function triggerOptimizationFlow(options = {}) {
           return;
         }
 
-        // Check if rate limited (100% quota / 100 reviews)
-        if (response?.rate_limited || (response?.error && response.error.includes("rate limit"))) {
+        // Check if rate limited or quota reached (30/30 problems fixed)
+        if (response?.quota_exceeded || response?.rate_limited || (response?.error && (response.error.includes("rate limit") || response.error.includes("Quota limit")))) {
           safeStorageSet({
             optimizationError: response.error,
-            optimizationStatus: "RATE_LIMITED"
+            optimizationStatus: "RATE_LIMITED",
+            is_locked: true,
+            quota_exceeded: true,
+            problems_used: 30,
+            tokens_used: 10
           });
           if (!isAuto) {
             setScreenStickState("error");
             const labelEl = floatingPill?.querySelector("#sniply-stick-label");
-            if (labelEl) labelEl.textContent = "Claude 3.5 Haiku quota reached (100% used). Service paused.";
+            if (labelEl) labelEl.textContent = "Limit reached (30/30 fixed). Service paused.";
           }
           return;
         }
