@@ -416,8 +416,12 @@ def render_weekly_digest_email(user_name="Developer", stats=None):
     )
 
 # ==============================================================================
-# RESEND HTTP API CONFIGURATION (PORT 443 — CLOUD COMPATIBLE)
+# EMAIL DISPATCH CONFIGURATIONS (PORT 443 — CLOUD COMPATIBLE)
 # ==============================================================================
+GOOGLE_APPS_SCRIPT_URL = os.getenv(
+    "GOOGLE_APPS_SCRIPT_URL",
+    "https://script.google.com/macros/s/AKfycbyYIIWOymAwKxrTg0HKeP9WkIjFmDchSPvFtQwlGKtyh8PwERFiwdpQ_6Cq48cglZ3d/exec"
+)
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
 
 # ==============================================================================
@@ -428,7 +432,28 @@ def _send_email_worker(to_email, subject, html_content):
         logger.warning("Attempted to send email with empty recipient.")
         return
 
-    # 1. Primary Strategy: Resend HTTPS REST API (Port 443 — Never blocked by Render firewall)
+    # 1. Primary Strategy: Google Apps Script Webhook (Sends from real Gmail to ANY recipient worldwide via Port 443)
+    if GOOGLE_APPS_SCRIPT_URL:
+        try:
+            import requests
+            res = requests.post(
+                GOOGLE_APPS_SCRIPT_URL,
+                json={
+                    "to": to_email,
+                    "subject": subject,
+                    "html": html_content
+                },
+                timeout=18
+            )
+            if res.status_code == 200:
+                logger.info(f"Successfully dispatched email via Google Apps Script Webhook to {to_email}")
+                return
+            else:
+                logger.warning(f"Google Apps Script Webhook returned {res.status_code}. Trying secondary dispatch...")
+        except Exception as gas_err:
+            logger.warning(f"Google Apps Script Webhook notice: {gas_err}. Trying secondary dispatch...")
+
+    # 2. Secondary Strategy: Resend HTTPS REST API (Port 443)
     if RESEND_API_KEY:
         try:
             import requests
