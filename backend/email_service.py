@@ -215,9 +215,39 @@ BASE_EMAIL_SHELL = """<!DOCTYPE html>
 </html>"""
 
 # ==============================================================================
+# CANVA HTML EMAIL TEMPLATE LOADER
+# ==============================================================================
+CANVA_TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "email_temp", "email_template.html")
+
+def get_canva_welcome_html(user_name="Developer"):
+    """Loads Canva-generated HTML template and injects dynamic personalized greeting."""
+    if os.path.exists(CANVA_TEMPLATE_PATH):
+        try:
+            with open(CANVA_TEMPLATE_PATH, "r", encoding="utf-8") as f:
+                html = f.read()
+            import re
+            # Strip third-party tracking scripts for email client compatibility
+            html = re.sub(r'<script.*?</script>', '', html, flags=re.DOTALL | re.IGNORECASE)
+
+            # Inject personalized user greeting into Canva table cell
+            greeting = f"Hi {user_name},"
+            if '&nbsp;</td></tr><tr><td dir="ltr" class="ers-fs-187"' in html:
+                html = html.replace('&nbsp;</td></tr><tr><td dir="ltr" class="ers-fs-187"', f'{greeting}</td></tr><tr><td dir="ltr" class="ers-fs-187"')
+            elif 'ers-fs-240' in html:
+                html = re.sub(r'(class=["\']ers-fs-240["\'][^>]*>).*?(</td>)', r'\g<1>' + greeting + r'\2', html)
+            return html
+        except Exception as e:
+            logger.warning(f"Could not load Canva email template: {e}")
+    return None
+
+# ==============================================================================
 # 1. WELCOME & ONBOARDING TEMPLATE
 # ==============================================================================
 def render_welcome_email(user_name="Developer"):
+    canva_html = get_canva_welcome_html(user_name)
+    if canva_html:
+        return canva_html
+
     heading = "You're all set! Start writing clean code with Snipy"
     badge_html = '<span class="badge badge-emerald">ACCOUNT SYNCED</span>'
     content = """
