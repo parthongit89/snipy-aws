@@ -311,9 +311,54 @@ def register_user():
             display_name=display_name,
             photo_url=photo_url
         )
+
+        # Dispatch Welcome & Onboarding email via SMTP asynchronously
+        if email:
+            try:
+                from email_service import send_welcome_email
+                send_welcome_email(email, display_name or "Developer")
+            except Exception as mail_err:
+                logger.warning(f"Failed to dispatch welcome email: {mail_err}")
+
         return jsonify({"success": True, "user": user_record}), 200
     except Exception as e:
         logger.error(f"Failed to upsert user {firebase_uid}: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/v1/email/test", methods=["POST"])
+def test_email():
+    """Diagnostic route to test SMTP email dispatch for any of the 4 templates."""
+    data = request.get_json(force=True, silent=True) or {}
+    to_email = data.get("email") or "sonavanep899@gmail.com"
+    user_name = data.get("name") or "Parth Sonavane"
+    template_type = data.get("template") or "welcome"
+
+    try:
+        from email_service import (
+            send_welcome_email,
+            send_quota_exhausted_email,
+            send_pro_activated_email,
+            send_weekly_digest_email
+        )
+        if template_type == "welcome":
+            send_welcome_email(to_email, user_name)
+        elif template_type == "quota":
+            send_quota_exhausted_email(to_email, user_name, 30, 94)
+        elif template_type == "pro":
+            send_pro_activated_email(to_email, user_name, "TXN_SNIPY_DEMO_101", 49)
+        elif template_type == "digest":
+            send_weekly_digest_email(to_email, user_name)
+        else:
+            return jsonify({"success": False, "error": f"Unknown template '{template_type}'"}), 400
+
+        return jsonify({
+            "success": True,
+            "message": f"Test email '{template_type}' queued for delivery to {to_email}",
+            "template": template_type,
+            "recipient": to_email
+        }), 200
+    except Exception as e:
+        logger.error(f"Test email error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 def build_dynamic_system_prompt(ai_mode="anti-overengineering", custom_rules="", pref_langs=None):
@@ -534,6 +579,20 @@ def optimize_code():
             token_info = get_and_sync_daily_tokens(user_id)
             if token_info.get("is_locked") or token_info.get("problems_used", 0) >= 30 or token_info.get("tokens_used", 0) >= 10:
                 logger.warning(f"User {user_id} reached 10/10 token quota (30/30 problems used). Optimization service paused.")
+                
+                # Dispatch Quota Exhausted Email asynchronously
+                if token_info.get("email"):
+                    try:
+                        from email_service import send_quota_exhausted_email
+                        send_quota_exhausted_email(
+                            token_info["email"],
+                            token_info.get("display_name", "Developer"),
+                            token_info.get("problems_used", 30),
+                            94
+                        )
+                    except Exception as mail_err:
+                        logger.warning(f"Failed to dispatch quota email: {mail_err}")
+
                 return jsonify({
                     "success": False,
                     "error": "Quota limit reached (10/10 tokens / 30 problems used). Optimization service paused. Payment integration coming soon.",

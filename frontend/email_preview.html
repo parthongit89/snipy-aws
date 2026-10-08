@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snipy AI — Email Templates Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Google Sans Flex', 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #07090e;
+      color: #e2e8f0;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-6 md:p-10 flex flex-col items-center">
+
+  <!-- Header -->
+  <header class="w-full max-w-4xl text-center mb-8">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-3">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      Google Sans Flex • AI Design System
+    </div>
+    <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2">Snipy Production Email Templates</h1>
+    <p class="text-sm md:text-base text-slate-400 max-w-xl mx-auto">
+      Interactive preview of all 4 transactional & telemetry email templates generated for Google SMTP & Firebase Auth.
+    </p>
+
+    <!-- Tab Selector -->
+    <div class="flex flex-wrap justify-center gap-2 mt-6">
+      <button onclick="switchTemplate('welcome')" id="tab-welcome" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-emerald-500 text-black shadow-lg shadow-emerald-500/20">
+        1. Welcome & Onboarding
+      </button>
+      <button onclick="switchTemplate('quota')" id="tab-quota" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">
+        2. Quota Exhausted (30/30)
+      </button>
+      <button onclick="switchTemplate('pro')" id="tab-pro" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">
+        3. Pro Upgrade Receipt
+      </button>
+      <button onclick="switchTemplate('digest')" id="tab-digest" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">
+        4. Weekly Telemetry Digest
+      </button>
+    </div>
+  </header>
+
+  <!-- Email Frame Container -->
+  <main class="w-full max-w-2xl bg-black/40 p-4 sm:p-8 rounded-3xl border border-white/10 shadow-2xl backdrop-blur-xl">
+    
+    <!-- Template 1: Welcome -->
+    <div id="view-welcome" class="email-view">
+      <div class="max-w-[560px] mx-auto bg-[#0c101c] border border-white/15 rounded-2xl overflow-hidden shadow-2xl">
+        <div class="p-8 pb-4 text-center bg-radial from-emerald-500/15 via-transparent to-transparent">
+          <img src="icons/cube-icon.png" alt="Snipy Logo" class="w-14 h-14 mx-auto mb-3 object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 mb-4">
+            ACCOUNT SYNCED
+          </span>
+          <h2 class="text-xl md:text-2xl font-bold text-white tracking-tight">You're all set! Start writing clean code with <span class="text-emerald-400">Snipy</span></h2>
+        </div>
+        <div class="px-8 py-5 text-slate-300 text-[15px] leading-relaxed">
+          <div class="font-semibold text-white mb-4">Hi Parth Sonavane,</div>
+          <p class="mb-4">Welcome to <strong class="text-white">Snipy</strong>! We are thrilled to have you on board.</p>
+          <p class="mb-4">You have successfully signed in with your Google account, and your profile is now securely synced with your personal developer telemetry dashboard.</p>
+          <p class="mb-6">You're just a few steps away from writing cleaner, faster code without the cognitive overload of artificial over-engineering.</p>
+          
+          <div class="bg-white/[0.03] border border-white/10 rounded-xl p-4 my-5 space-y-2.5">
+            <div class="flex justify-between items-center text-xs sm:text-sm">
+              <span class="text-slate-400">Assigned AI Tier</span>
+              <span class="font-mono font-semibold text-emerald-400">Free Tier (10 Tokens / 30 Problems)</span>
+            </div>
+            <div class="flex justify-between items-center text-xs sm:text-sm border-t border-white/5 pt-2">
+              <span class="text-slate-400">AI Engine</span>
+              <span class="font-mono text-white">AWS Bedrock • Claude 3.5 Haiku</span>
+            </div>
+            <div class="flex justify-between items-center text-xs sm:text-sm border-t border-white/5 pt-2">
+              <span class="text-slate-400">Supported IDEs</span>
+              <span class="font-mono text-white">CodeChef, JupyterLab, LeetCode, Colab</span>
+            </div>
+          </div>
+
+          <div class="text-center my-7">
+            <a href="dashboard.html" class="inline-block bg-gradient-to-r from-emerald-500 to-teal-600 text-black font-bold text-sm px-7 py-3 rounded-xl shadow-lg shadow-emerald-500/25 hover:opacity-95 transition-all">
+              Launch Developer Dashboard &rarr;
+            </a>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-white/5 text-slate-300 text-sm">
+            Happy coding!<br>
+            <strong class="text-white">— Snipy</strong>
+          </div>
+        </div>
+        <div class="p-6 border-t border-white/10 text-center text-xs text-slate-500">
+          Snipy v1.0 • Anti-Overengineering Assistant for Python &bull; <a href="index.html" class="underline hover:text-slate-400">snipy-ai.web.app</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Template 2: Quota Exhausted -->
+    <div id="view-quota" class="email-view hidden">
+      <div class="max-w-[560px] mx-auto bg-[#0c101c] border border-rose-500/20 rounded-2xl overflow-hidden shadow-2xl">
+        <div class="p-8 pb-4 text-center bg-radial from-rose-500/15 via-transparent to-transparent">
+          <img src="icons/cube-icon.png" alt="Snipy Logo" class="w-14 h-14 mx-auto mb-3 object-contain drop-shadow-[0_0_15px_rgba(244,63,94,0.3)]" />
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-rose-500/10 text-rose-400 border border-rose-500/30 mb-4">
+            QUOTA EXHAUSTED • SERVICE LOCKED
+          </span>
+          <h2 class="text-xl md:text-2xl font-bold text-white tracking-tight">Free Tier Quota Reached (30/30 Fixed)</h2>
+        </div>
+        <div class="px-8 py-5 text-slate-300 text-[15px] leading-relaxed">
+          <div class="font-semibold text-white mb-4">Hi Parth Sonavane,</div>
+          <p class="mb-4">You've hit your maximum free tier quota of <strong class="text-white">30 code problems fixed</strong> (10/10 tokens used) on <strong class="text-white">Snipy</strong>!</p>
+          <p class="mb-4">To prevent cloud resource overrun, your real-time scanning service is now strictly locked on the free tier.</p>
+          
+          <div class="bg-white/[0.03] border border-rose-500/20 rounded-xl p-4 my-5 space-y-2.5">
+            <div class="flex justify-between items-center text-xs sm:text-sm">
+              <span class="text-slate-400">Problems Solved</span>
+              <span class="font-mono font-semibold text-white">30 / 30 (100%)</span>
+            </div>
+            <div class="flex justify-between items-center text-xs sm:text-sm border-t border-white/5 pt-2">
+              <span class="text-slate-400">Redundant Lines Eliminated</span>
+              <span class="font-mono text-emerald-400 font-semibold">94 lines saved</span>
+            </div>
+            <div class="flex justify-between items-center text-xs sm:text-sm border-t border-white/5 pt-2">
+              <span class="text-slate-400">Current Service Status</span>
+              <span class="font-mono text-rose-400 font-semibold">🔒 Locked (0 Tokens Left)</span>
+            </div>
+          </div>
+
+          <div class="text-center my-7">
+            <a href="dashboard.html" class="inline-block bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold text-sm px-7 py-3 rounded-xl shadow-lg shadow-rose-500/25 hover:opacity-95 transition-all">
+              Upgrade to Snipy Pro (Unlimited) &rarr;
+            </a>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-white/5 text-slate-300 text-sm">
+            Happy coding!<br>
+            <strong class="text-white">— Snipy</strong>
+          </div>
+        </div>
+        <div class="p-6 border-t border-white/10 text-center text-xs text-slate-500">
+          Snipy v1.0 • Anti-Overengineering Assistant for Python &bull; <a href="index.html" class="underline hover:text-slate-400">snipy-ai.web.app</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Template 3: Pro Activated -->
+    <div id="view-pro" class="email-view hidden">
+      <div class="max-w-[560px] mx-auto bg-[#0c101c] border border-cyan-500/20 rounded-2xl overflow-hidden shadow-2xl">
+        <div class="p-8 pb-4 text-center bg-radial from-cyan-500/15 via-transparent to-transparent">
+          <img src="icons/cube-icon.png" alt="Snipy Logo" class="w-14 h-14 mx-auto mb-3 object-contain drop-shadow-[0_0_15px_rgba(56,189,248,0.3)]" />
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 mb-4">
+            PRO TIER ACTIVE • UNLIMITED
+          </span>
+          <h2 class="text-xl md:text-2xl font-bold text-white tracking-tight">Welcome to Snipy Pro! Unlimited Access Unlocked 🚀</h2>
+        </div>
+        <div class="px-8 py-5 text-slate-300 text-[15px] leading-relaxed">
+          <div class="font-semibold text-white mb-4">Hi Parth Sonavane,</div>
+          <p class="mb-4">Thank you for supporting <strong class="text-white">Snipy</strong>! Your payment of <strong class="text-white">₹49.00</strong> has been confirmed, and your developer account has been upgraded to <strong class="text-cyan-400">Snipy Pro</strong>.</p>
+          <p class="mb-4">Your 30-problem quota limit has been removed. All optimizations on Google Colab, Jupyter, CodeChef, and LeetCode are now completely unrestricted.</p>
+          
+          <div class="bg-white/[0.03] border border-cyan-500/20 rounded-xl p-4 my-5 space-y-2.5">
+            <div class="flex justify-between items-center text-xs sm:text-sm">
+              <span class="text-slate-400">Plan</span>
+              <span class="font-mono font-semibold text-cyan-400">Snipy Pro (Unlimited Scans)</span>
+            </div>
+            <div class="flex justify-between items-center text-xs sm:text-sm border-t border-white/5 pt-2">
+              <span class="text-slate-400">Transaction ID</span>
+              <span class="font-mono text-white">TXN_SNIPY_99412</span>
+            </div>
+            <div class="flex justify-between items-center text-xs sm:text-sm border-t border-white/5 pt-2">
+              <span class="text-slate-400">Amount Paid</span>
+              <span class="font-mono text-emerald-400 font-semibold">₹49.00 INR</span>
+            </div>
+            <div class="flex justify-between items-center text-xs sm:text-sm border-t border-white/5 pt-2">
+              <span class="text-slate-400">Daily Token Quota</span>
+              <span class="font-mono text-cyan-400 font-semibold">&infin; Unlimited</span>
+            </div>
+          </div>
+
+          <div class="text-center my-7">
+            <a href="dashboard.html" class="inline-block bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-bold text-sm px-7 py-3 rounded-xl shadow-lg shadow-cyan-500/25 hover:opacity-95 transition-all">
+              Launch Pro Dashboard &rarr;
+            </a>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-white/5 text-slate-300 text-sm">
+            Happy coding!<br>
+            <strong class="text-white">— Snipy</strong>
+          </div>
+        </div>
+        <div class="p-6 border-t border-white/10 text-center text-xs text-slate-500">
+          Snipy v1.0 • Anti-Overengineering Assistant for Python &bull; <a href="index.html" class="underline hover:text-slate-400">snipy-ai.web.app</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Template 4: Digest -->
+    <div id="view-digest" class="email-view hidden">
+      <div class="max-w-[560px] mx-auto bg-[#0c101c] border border-white/15 rounded-2xl overflow-hidden shadow-2xl">
+        <div class="p-8 pb-4 text-center bg-radial from-emerald-500/15 via-transparent to-transparent">
+          <img src="icons/cube-icon.png" alt="Snipy Logo" class="w-14 h-14 mx-auto mb-3 object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 mb-4">
+            WEEKLY TELEMETRY
+          </span>
+          <h2 class="text-xl md:text-2xl font-bold text-white tracking-tight">Your Weekly Code Optimization Digest 📊</h2>
+        </div>
+        <div class="px-8 py-5 text-slate-300 text-[15px] leading-relaxed">
+          <div class="font-semibold text-white mb-4">Hi Parth Sonavane,</div>
+          <p class="mb-4">Here is your weekly summary of code simplifications and performance gains achieved with <strong class="text-white">Snipy</strong>:</p>
+          
+          <div class="bg-white/[0.03] border border-white/10 rounded-xl p-4 my-5 space-y-2.5">
+            <div class="flex justify-between items-center text-xs sm:text-sm">
+              <span class="text-slate-400">Algorithms Optimized</span>
+              <span class="font-mono font-semibold text-white">18 routines</span>
+            </div>
+            <div class="flex justify-between items-center text-xs sm:text-sm border-t border-white/5 pt-2">
+              <span class="text-slate-400">Average Line Reduction</span>
+              <span class="font-mono text-emerald-400 font-semibold">-24.6% cleaner</span>
+            </div>
+            <div class="flex justify-between items-center text-xs sm:text-sm border-t border-white/5 pt-2">
+              <span class="text-slate-400">Syntax Errors Caught Early</span>
+              <span class="font-mono text-cyan-400 font-semibold">4 bugs</span>
+            </div>
+            <div class="flex justify-between items-center text-xs sm:text-sm border-t border-white/5 pt-2">
+              <span class="text-slate-400">Most Active Platform</span>
+              <span class="font-mono text-white">CodeChef IDE</span>
+            </div>
+          </div>
+
+          <div class="text-center my-7">
+            <a href="dashboard.html" class="inline-block bg-gradient-to-r from-emerald-500 to-teal-600 text-black font-bold text-sm px-7 py-3 rounded-xl shadow-lg shadow-emerald-500/25 hover:opacity-95 transition-all">
+              View Detailed Analytics &rarr;
+            </a>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-white/5 text-slate-300 text-sm">
+            Happy coding!<br>
+            <strong class="text-white">— Snipy</strong>
+          </div>
+        </div>
+        <div class="p-6 border-t border-white/10 text-center text-xs text-slate-500">
+          Snipy v1.0 • Anti-Overengineering Assistant for Python &bull; <a href="index.html" class="underline hover:text-slate-400">snipy-ai.web.app</a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    function switchTemplate(type) {
+      document.querySelectorAll('.email-view').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-emerald-500', 'text-black', 'shadow-lg', 'shadow-emerald-500/20');
+        btn.classList.add('bg-slate-800', 'text-slate-300');
+      });
+
+      document.getElementById('view-' + type).classList.remove('hidden');
+      const activeBtn = document.getElementById('tab-' + type);
+      activeBtn.classList.remove('bg-slate-800', 'text-slate-300');
+      activeBtn.classList.add('bg-emerald-500', 'text-black', 'shadow-lg', 'shadow-emerald-500/20');
+    }
+  </script>
+</body>
+</html>

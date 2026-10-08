@@ -361,6 +361,7 @@ def get_and_sync_daily_tokens(firebase_uid):
         }
 
     sql_count = "SELECT COUNT(*) FROM optimizations WHERE firebase_uid = %s;"
+    sql_user = "SELECT email, display_name FROM sniply_users WHERE firebase_uid = %s LIMIT 1;"
     sql_sync_user = """
     UPDATE sniply_users 
     SET daily_tokens = %s, tokens_last_reset = CURRENT_DATE 
@@ -373,6 +374,11 @@ def get_and_sync_daily_tokens(firebase_uid):
                 cur.execute(sql_count, (firebase_uid,))
                 row = cur.fetchone()
                 problems_count = row[0] if row else 0
+
+                cur.execute(sql_user, (firebase_uid,))
+                u_row = cur.fetchone()
+                user_email = u_row[0] if u_row else None
+                user_name = u_row[1] if u_row else "Developer"
 
                 tokens_used = min(MAX_TOKENS, problems_count // 3)
                 tokens_remaining = max(0, MAX_TOKENS - tokens_used)
@@ -394,6 +400,8 @@ def get_and_sync_daily_tokens(firebase_uid):
                 "ratio_display": f"{tokens_used}/{MAX_TOKENS}",
                 "is_locked": is_locked,
                 "quota_exceeded": is_locked,
+                "email": user_email,
+                "display_name": user_name,
                 "remaining_hours": round(max(0.0, tokens_remaining * 0.25), 1)
             }
     except Exception as e:
