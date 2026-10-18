@@ -1,6 +1,6 @@
 <div align="center">
 
-  <a href="https://aws2-frontend.vercel.app">
+  <a href="snipy-ai.web.app/">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="frontend/assets/logo-white.svg">
       <source media="(prefers-color-scheme: light)" srcset="frontend/assets/logo.svg">
@@ -30,7 +30,7 @@
   [![Neon Database](https://img.shields.io/badge/Neon-PostgreSQL-00E599?style=flat-square&logo=postgresql&logoColor=black)](https://neon.tech/)
   [![Flask](https://img.shields.io/badge/Flask-3.0+-000000?style=flat-square&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
   [![Manifest V3](https://img.shields.io/badge/Manifest%20V3-Chrome%20%7C%20Edge-4285F4?style=flat-square&logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/intro/)
-  [![Vercel Deployment](https://img.shields.io/badge/Vercel-Production-000000?style=flat-square&logo=vercel&logoColor=white)](https://aws2-frontend.vercel.app)
+  [![Vercel Deployment](https://img.shields.io/badge/Vercel-Production-000000?style=flat-square&logo=vercel&logoColor=white)](snipy-ai.web.app/)
   [![License: MIT](https://img.shields.io/badge/License-MIT-gray.svg?style=flat-square)](LICENSE)
 
   <p align="center">
@@ -264,7 +264,7 @@ Returns session scorecards, gauge percentages, and optimization event logs.
 ## Installation & Setup
 
 ### 1. Browser Extension
-1. Access the web interface at [`https://aws2-frontend.vercel.app`](https://aws2-frontend.vercel.app).
+1. Access the web interface at [`snipy-ai.web.app/`](snipy-ai.web.app/).
 2. Authenticate with Google to initialize user records in Neon PostgreSQL.
 3. Download `snipy-extension.zip` or clone the repository to access the `extension/` directory.
 4. Navigate to `chrome://extensions/` in Google Chrome (or `edge://extensions/` in Microsoft Edge).
@@ -289,8 +289,8 @@ python app.py
 ```
 
 ### 3. Production Deployments
-- **Web Interface & Landing**: [`https://aws2-frontend.vercel.app`](https://aws2-frontend.vercel.app)
-- **Developer Dashboard**: [`https://aws2-frontend.vercel.app/dashboard.html`](https://aws2-frontend.vercel.app/dashboard.html)
+- **Web Interface & Landing**: [`snipy-ai.web.app/`](snipy-ai.web.app/)
+- **Developer Dashboard**: [`snipy-ai.web.app//dashboard.html`](snipy-ai.web.app//dashboard.html)
 - **API Gateway Service**: [`https://aws-2-u2md.onrender.com`](https://aws-2-u2md.onrender.com)
 
 ---
